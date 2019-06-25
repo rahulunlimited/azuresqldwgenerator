@@ -46,5 +46,6 @@ In order to migrate data, the following scripts are required to be generated.
 
 ## Additional Info
 [Columnstore Index](docs/columnstoreindex.md)
+
 [Table Distribution](docs/tabledistribution.md)
 
