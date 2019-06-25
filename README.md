@@ -6,6 +6,8 @@ However, migrating existing data from SQL Server which can easily scale from cou
 
 [Initial Configuration](docs/configuration.md)
 
+[Data Migration Steps](docs/datamigration.md)
+
 
 ## Common Data Migration issues
 The Script generator resolves some of the common **issues** while migrating data:
@@ -42,4 +44,7 @@ In order to migrate data, the following scripts are required to be generated.
 - Follows best practices recommended by SQL Server CAT team. [Blog](https://blogs.msdn.microsoft.com/sqlcat/2016/08/18/migrating-data-to-azure-sql-data-warehouse-in-practice/)
 - Has potential to integrate other data sources like Oracle, MySQL
 
+## Additional Info
+[Columnstore Index](docs/columnstoreindex.md)
+[Table Distribution](docs/tabledistribution.md)
 
