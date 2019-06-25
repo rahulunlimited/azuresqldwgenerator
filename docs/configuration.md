@@ -22,7 +22,7 @@ BCP Output Format | The BCP output should be in Unicode format. SQL Server 2014 
 | *AZCopy Location* | The file path for AZCopy |
 | Configuration Name | The name for Configuration settings |
 
-You can click on the ![image.png](/.attachments/image-f2cd50ec-13a3-4244-8e2b-fbc6ed05f298.png) buttons to load the default values for some Configuration. (Container Name, 7-zip, AZCopy).
+You can click on the ![Default Value](images/loaddefault.png) buttons to load the default values for some Configuration. (Container Name, 7-zip, AZCopy).
 
 Click Save after you have updated the Configuration. And chose Load Configuration to load start to use the information from the configuration.
 
