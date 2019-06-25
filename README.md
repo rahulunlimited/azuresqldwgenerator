@@ -46,3 +46,7 @@ In order to migrate data, the following scripts are required to be generated.
 - [Columnstore Index](docs/columnstoreindex.md)
 - [Table Distribution](docs/tabledistribution.md)
 
+
+
+## Youtube Video Overview
+[![SQL DW Generator](http://img.youtube.com/vi/ZGvVexJs4g0/0.jpg)](http://www.youtube.com/watch?v=ZGvVexJs4g0 "SQL DW Generator")
