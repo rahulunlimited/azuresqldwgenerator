@@ -1,0 +1,410 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:MainDataTable="SQLDwTable" msdata:UseCurrentLocale="true">
+      <xs:complexType>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element name="SQLDwTable">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="TableID" type="xs:string" minOccurs="0" />
+                <xs:element name="SchemaName" type="xs:string" minOccurs="0" />
+                <xs:element name="TableName" type="xs:string" minOccurs="0" />
+                <xs:element name="TotalRows" type="xs:int" minOccurs="0" />
+                <xs:element name="DataSizeMB" type="xs:int" minOccurs="0" />
+                <xs:element name="DistributionType" type="xs:string" minOccurs="0" />
+                <xs:element name="DistributionColumn" type="xs:string" minOccurs="0" />
+                <xs:element name="IndexType" type="xs:string" minOccurs="0" />
+                <xs:element name="IndexColumn" type="xs:string" minOccurs="0" />
+                <xs:element name="BCPSplit" type="xs:string" minOccurs="0" />
+                <xs:element name="BCPColumn" type="xs:string" minOccurs="0" />
+                <xs:element name="BCPSplitValues" type="xs:string" minOccurs="0" />
+                <xs:element name="BCPValueType" type="xs:string" minOccurs="0" />
+                <xs:element name="ReplaceCRLF" type="xs:string" minOccurs="0" />
+                <xs:element name="SelectTable" type="xs:string" minOccurs="0" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </xs:schema>
+  <SQLDwTable>
+    <TableID>Dimension.City</TableID>
+    <SchemaName>Dimension</SchemaName>
+    <TableName>City</TableName>
+    <TotalRows>116295</TotalRows>
+    <DataSizeMB>27</DataSizeMB>
+    <DistributionType>HASH</DistributionType>
+    <DistributionColumn>City Key</DistributionColumn>
+    <IndexType>CLUSTERED COLUMNSTORE INDEX</IndexType>
+    <IndexColumn />
+    <BCPSplit>No</BCPSplit>
+    <BCPColumn />
+    <BCPSplitValues />
+    <BCPValueType />
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Fact.Order</TableID>
+    <SchemaName>Fact</SchemaName>
+    <TableName>Order</TableName>
+    <TotalRows>231412</TotalRows>
+    <DataSizeMB>4</DataSizeMB>
+    <DistributionType>HASH</DistributionType>
+    <DistributionColumn>City Key</DistributionColumn>
+    <IndexType>CLUSTERED COLUMNSTORE INDEX</IndexType>
+    <IndexColumn />
+    <BCPSplit>No</BCPSplit>
+    <BCPColumn />
+    <BCPSplitValues />
+    <BCPValueType />
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Fact.Sale</TableID>
+    <SchemaName>Fact</SchemaName>
+    <TableName>Sale</TableName>
+    <TotalRows>228265</TotalRows>
+    <DataSizeMB>4</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <DistributionColumn />
+    <IndexType>CLUSTERED INDEX</IndexType>
+    <IndexColumn>Sale Key</IndexColumn>
+    <BCPSplit>Yes</BCPSplit>
+    <BCPColumn>Invoice Date Key</BCPColumn>
+    <BCPSplitValues>2013,2014,2015,2016</BCPSplitValues>
+    <BCPValueType>Y</BCPValueType>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Fact.Movement</TableID>
+    <SchemaName>Fact</SchemaName>
+    <TableName>Movement</TableName>
+    <TotalRows>236667</TotalRows>
+    <DataSizeMB>3</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <DistributionColumn />
+    <IndexType>HEAP</IndexType>
+    <IndexColumn />
+    <BCPSplit>Yes</BCPSplit>
+    <BCPColumn>Supplier Key</BCPColumn>
+    <BCPSplitValues>0,14,15,17,18,20,23,25</BCPSplitValues>
+    <BCPValueType>V</BCPValueType>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Fact.Transaction</TableID>
+    <SchemaName>Fact</SchemaName>
+    <TableName>Transaction</TableName>
+    <TotalRows>99585</TotalRows>
+    <DataSizeMB>3</DataSizeMB>
+    <DistributionType>HASH</DistributionType>
+    <DistributionColumn>Transaction Key</DistributionColumn>
+    <IndexType>HEAP</IndexType>
+    <IndexColumn />
+    <BCPSplit>No</BCPSplit>
+    <BCPColumn />
+    <BCPSplitValues />
+    <BCPValueType />
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Fact.Purchase</TableID>
+    <SchemaName>Fact</SchemaName>
+    <TableName>Purchase</TableName>
+    <TotalRows>8367</TotalRows>
+    <DataSizeMB>1</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Dimension.Date</TableID>
+    <SchemaName>Dimension</SchemaName>
+    <TableName>Date</TableName>
+    <TotalRows>1461</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>REPLICATE</DistributionType>
+    <DistributionColumn />
+    <IndexType>HEAP</IndexType>
+    <IndexColumn />
+    <BCPSplit>No</BCPSplit>
+    <BCPColumn />
+    <BCPSplitValues />
+    <BCPValueType />
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Dimension.Stock Item</TableID>
+    <SchemaName>Dimension</SchemaName>
+    <TableName>Stock Item</TableName>
+    <TotalRows>672</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Dimension.Customer</TableID>
+    <SchemaName>Dimension</SchemaName>
+    <TableName>Customer</TableName>
+    <TotalRows>403</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Fact.Stock Holding</TableID>
+    <SchemaName>Fact</SchemaName>
+    <TableName>Stock Holding</TableName>
+    <TotalRows>227</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Dimension.Employee</TableID>
+    <SchemaName>Dimension</SchemaName>
+    <TableName>Employee</TableName>
+    <TotalRows>213</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Dimension.Supplier</TableID>
+    <SchemaName>Dimension</SchemaName>
+    <TableName>Supplier</TableName>
+    <TotalRows>28</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Dimension.Transaction Type</TableID>
+    <SchemaName>Dimension</SchemaName>
+    <TableName>Transaction Type</TableName>
+    <TotalRows>15</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Integration.ETL Cutoff</TableID>
+    <SchemaName>Integration</SchemaName>
+    <TableName>ETL Cutoff</TableName>
+    <TotalRows>14</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Integration.Lineage</TableID>
+    <SchemaName>Integration</SchemaName>
+    <TableName>Lineage</TableName>
+    <TotalRows>13</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Dimension.Payment Method</TableID>
+    <SchemaName>Dimension</SchemaName>
+    <TableName>Payment Method</TableName>
+    <TotalRows>6</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Integration.Customer_Staging</TableID>
+    <SchemaName>Integration</SchemaName>
+    <TableName>Customer_Staging</TableName>
+    <TotalRows>0</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Integration.Employee_Staging</TableID>
+    <SchemaName>Integration</SchemaName>
+    <TableName>Employee_Staging</TableName>
+    <TotalRows>0</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Integration.Movement_Staging</TableID>
+    <SchemaName>Integration</SchemaName>
+    <TableName>Movement_Staging</TableName>
+    <TotalRows>0</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Integration.Order_Staging</TableID>
+    <SchemaName>Integration</SchemaName>
+    <TableName>Order_Staging</TableName>
+    <TotalRows>0</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Integration.PaymentMethod_Staging</TableID>
+    <SchemaName>Integration</SchemaName>
+    <TableName>PaymentMethod_Staging</TableName>
+    <TotalRows>0</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Integration.Purchase_Staging</TableID>
+    <SchemaName>Integration</SchemaName>
+    <TableName>Purchase_Staging</TableName>
+    <TotalRows>0</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Integration.Sale_Staging</TableID>
+    <SchemaName>Integration</SchemaName>
+    <TableName>Sale_Staging</TableName>
+    <TotalRows>0</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Integration.StockHolding_Staging</TableID>
+    <SchemaName>Integration</SchemaName>
+    <TableName>StockHolding_Staging</TableName>
+    <TotalRows>0</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Integration.StockItem_Staging</TableID>
+    <SchemaName>Integration</SchemaName>
+    <TableName>StockItem_Staging</TableName>
+    <TotalRows>0</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Integration.Supplier_Staging</TableID>
+    <SchemaName>Integration</SchemaName>
+    <TableName>Supplier_Staging</TableName>
+    <TotalRows>0</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Integration.Transaction_Staging</TableID>
+    <SchemaName>Integration</SchemaName>
+    <TableName>Transaction_Staging</TableName>
+    <TotalRows>0</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Integration.TransactionType_Staging</TableID>
+    <SchemaName>Integration</SchemaName>
+    <TableName>TransactionType_Staging</TableName>
+    <TotalRows>0</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+  <SQLDwTable>
+    <TableID>Integration.City_Staging</TableID>
+    <SchemaName>Integration</SchemaName>
+    <TableName>City_Staging</TableName>
+    <TotalRows>0</TotalRows>
+    <DataSizeMB>0</DataSizeMB>
+    <DistributionType>ROUND_ROBIN</DistributionType>
+    <IndexType>HEAP</IndexType>
+    <BCPSplit>No</BCPSplit>
+    <ReplaceCRLF>No</ReplaceCRLF>
+    <SelectTable>True</SelectTable>
+  </SQLDwTable>
+</NewDataSet>

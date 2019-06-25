@@ -1,0 +1,1 @@
+Server=<<ServerName>>;Database=<<DatabaseName>>;Trusted_Connection=True;
