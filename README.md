@@ -2,11 +2,9 @@ With Azure SQL Data Warehouse, organisations can leverage the Massively Parallel
 
 However, migrating existing data from SQL Server which can easily scale from couple of 100 GBs to TBs can be challenging and time consuming. The application helps migrate existing metadata and set the most optimised configuration for tables on the Azure SQL DW environment. It also generates easy to use scripts for Bulk Copy and leverages the PolyBase technology to import data easily and quickly to Azure SQL DW.
 
-[Pre-requisites](/docs/pre-requisites.md)
-
-[Initial Configuration](docs/configuration.md)
-
-[Data Migration Steps](docs/datamigration.md)
+- [Pre-requisites](/docs/pre-requisites.md)
+- [Initial Configuration](docs/configuration.md)
+- [Data Migration Steps](docs/datamigration.md)
 
 
 ## Common Data Migration issues
@@ -45,7 +43,6 @@ In order to migrate data, the following scripts are required to be generated.
 - Has potential to integrate other data sources like Oracle, MySQL
 
 ## Additional Info
-[Columnstore Index](docs/columnstoreindex.md)
-
-[Table Distribution](docs/tabledistribution.md)
+- [Columnstore Index](docs/columnstoreindex.md)
+- [Table Distribution](docs/tabledistribution.md)
 
