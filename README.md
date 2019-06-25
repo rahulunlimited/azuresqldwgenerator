@@ -2,9 +2,9 @@ With Azure SQL Data Warehouse, organisations can leverage the Massively Parallel
 
 However, migrating existing data from SQL Server which can easily scale from couple of 100 GBs to TBs can be challenging and time consuming. The application helps migrate existing metadata and set the most optimised configuration for tables on the Azure SQL DW environment. It also generates easy to use scripts for Bulk Copy and leverages the PolyBase technology to import data easily and quickly to Azure SQL DW.
 
-[Pre-requisites](/docs/Pre-requisites.md)
+[Pre-requisites](/docs/pre-requisites.md)
 
-[Initial Configuration](docs/Configuration.md)
+[Initial Configuration](docs/configuration.md)
 
 
 ## Common Data Migration issues
