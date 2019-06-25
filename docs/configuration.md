@@ -1,7 +1,7 @@
 
 The first time when you start the application, you are presented with the following Configuration screen.
 
-![image.png](/.attachments/image-8b900884-8259-4b3b-a111-c72c6ae6fc32.png)
+![image.png](/images/azuresqldwgenconfig.png)
 
 Please follow the guide below to create a new configuration of update an existing configuration:
 
