@@ -50,6 +50,7 @@ namespace SQLDwGenerator
             }
             cmbConfigFile.Items.Add(NEW_CONFIG_FILE);
 
+
             string strFolderApplication = UtilGeneral.GetApplicationFolder();
             string strFolderConnectionType = strFolderApplication + "\\" + Constants.FOLDER_CONNECTION_TYPE;
             string[] subdirectoryEntries = Directory.GetDirectories(strFolderConnectionType);
@@ -101,7 +102,7 @@ namespace SQLDwGenerator
         private void LoadDefaultValues()
         {
             txt7Zip.Text = @"C:\Program Files (x86)\7-Zip\7z.exe";
-            txtAZCopy.Text = @"C:\Program Files (x86)\Microsoft SDKs\Azure\AzCopy\AzCopy.exe";
+            txtAZCopy.Text = @"C:\Program Files\Azure\azcopy.exe";
             txtAzContainer.Text = "initial-load";
             txtBCPOutputFolder.Text = @"C:\TEMP\";
 
@@ -132,7 +133,7 @@ namespace SQLDwGenerator
 
             string strConnectionType, strServerName, strDatabaseName, strAuthentication, strUserName, strPassword;
             string strBCPOutputFolder, strBCPOutputFormat;
-            string strAzStorageAccount, strAzContainer, strAzStorageKey;
+            string strAzStorageAccount, strAzContainer, strAzSASToken, strAzStorageKey;
             string strFile7Zip, strFileAZCopy;
 
             string strConfigName;
@@ -155,6 +156,7 @@ namespace SQLDwGenerator
             strBCPOutputFolder = txtBCPOutputFolder.Text;
             strAzStorageAccount = txtAzStorageAccount.Text;
             strAzContainer = txtAzContainer.Text;
+            strAzSASToken = txtAzSASToken.Text;
             strAzStorageKey = txtAzStorageKey.Text;
             strFile7Zip = txt7Zip.Text;
             strFileAZCopy = txtAZCopy.Text;
@@ -168,7 +170,7 @@ namespace SQLDwGenerator
             MySettingsEnvironments cfg = new MySettingsEnvironments() ;
             cfg.SaveConfiguration(strConfigName, strConnectionType, strServerName, strDatabaseName, strAuthentication, strUserName, strPassword,
                 strBCPOutputFolder, strBCPOutputFormat,
-                strAzStorageAccount, strAzContainer, strAzStorageKey,
+                strAzStorageAccount, strAzContainer, strAzSASToken, strAzStorageKey,
                 strFile7Zip, strFileAZCopy);
 
             cmbConfigFile.Items.Add(strConfigName + ".Config");
@@ -212,6 +214,7 @@ namespace SQLDwGenerator
             txtBCPOutputFolder.Text = CurrentConfiguration.BCPOutputFolder;
             txtAzStorageAccount.Text = CurrentConfiguration.AzStorageAccount;
             txtAzContainer.Text = CurrentConfiguration.AzContainer;
+            txtAzSASToken.Text = CurrentConfiguration.AzSASToken;
             txtAzStorageKey.Text = CurrentConfiguration.AzStorageKey;
             txt7Zip.Text = CurrentConfiguration.File7Zip;
             txtAZCopy.Text = CurrentConfiguration.FileAZCopy;
@@ -244,7 +247,7 @@ namespace SQLDwGenerator
                 txtBCPOutputFolder.Text = "";
                 txtAzStorageAccount.Text = "";
                 txtAzContainer.Text = "";
-                txtAzStorageKey.Text = "";
+                txtAzSASToken.Text = "";
                 txt7Zip.Text = "";
                 txtAZCopy.Text = "";
                 txtConfigName.Text = "";

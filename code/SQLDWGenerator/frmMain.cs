@@ -75,7 +75,9 @@ namespace SQLDwGenerator
 
         public void ShowConfigForm()
         {
-            frmConfig f = new frmConfig("", this);
+            CurrentConfigFileName = UtilGeneral.GetConfigValue(MySettingsUserConfig.KEY_CONFIG_NAME);
+
+            frmConfig f = new frmConfig(CurrentConfigFileName, this);
             f.ShowDialog();
 
         }

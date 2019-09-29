@@ -1105,7 +1105,7 @@ namespace SQLDwGenerator
                 ALScript.Add(TAB + TAB + "If ($file.Extension -eq \"" + Constants.FILE_EXTENSION_GZ_MAIN + "\") {continue}");
                 ALScript.Add(TAB + TAB + "");
                 ALScript.Add(TAB + TAB + "$fileNameTEMP = $file.FullName + \"" + Constants.FILE_EXTENSION_GZ_TEMP + "\"");
-                ALScript.Add(TAB + TAB + "$fileNameGz = $file.FullName + \"" + Constants.FILE_EXTENSION_GZ_MAIN + "\"");
+                ALScript.Add(TAB + TAB + "$fileNameGz = $RootFolder + \"\\" + Constants.SUB_FOLDER_GZ + "\\\" + $file.Directory.Name + \"\\\" + $file.Name + \"" + Constants.FILE_EXTENSION_GZ_MAIN + "\"");
                 ALScript.Add(TAB + TAB + "$fileNameProcessed = $file.FullName + \".PROCESSED\"");
                 ALScript.Add(TAB + TAB + "");
                 ALScript.Add(TAB + TAB + "$LogMsg = (Get-Date).toString(\"yyyy/MM/dd HH:mm:ss\") + \" : Started compressing  : \" + $file.Name");
@@ -1117,6 +1117,7 @@ namespace SQLDwGenerator
                 ALScript.Add(TAB + TAB + "If (Test-Path $fileNameTEMP)");
                 ALScript.Add(TAB + TAB + "{");
                 ALScript.Add(TAB + TAB + TAB + "#Rename the file if compression was successful");
+                ALScript.Add(TAB + TAB + TAB + "New-Item -ItemType File -Path $fileNameGz -Force");
                 ALScript.Add(TAB + TAB + TAB + "Move-Item -Path $fileNameTEMP -Destination $fileNameGz -Force");
                 ALScript.Add(TAB + TAB + TAB + "Move-Item -Path $file.FullName -Destination $fileNameProcessed -Force");
                 ALScript.Add(TAB + TAB + "}");
@@ -1159,22 +1160,31 @@ namespace SQLDwGenerator
 
             try
             {
+                string strSASKey = System.Net.WebUtility.HtmlDecode(SQLDwConfig.AzSASToken);
+                strSASKey = strSASKey.Replace("%", "%%");
+                string strSASURL = "https://" + SQLDwConfig.AzStorageAccount + ".blob.core.windows.net/" + SQLDwConfig.AzContainer + strSASKey;
+
                 string strAZCopy;
-                ALScript.Add("IF \"%1\"==\"\" (");
-                ALScript.Add(TAB + "SET FilePattern=\"*.gz\"");
-                ALScript.Add(") ELSE (");
-                ALScript.Add(TAB + "SET FilePattern=%1");
-                ALScript.Add(")");
                 strAZCopy = "\"" + SQLDwConfig.FileAZCopy + "\"";
-                strAZCopy += " /Source:\"" + SQLDwConfig.BCPOutputFolder + "\"";
-                strAZCopy += " /Dest:https://" + SQLDwConfig.AzStorageAccount + ".blob.core.windows.net/" + SQLDwConfig.AzContainer + "/";
-                strAZCopy += " /DestKey:" + SQLDwConfig.AzStorageKey;
-                strAZCopy += " /pattern:%FilePattern%"; // Specify the default file format at gzip compressed
-                strAZCopy += " /NC:4";
-                strAZCopy += " /S"; // Loop through all subfoldes
-                strAZCopy += " /Y"; // Suppress any prompts
-                strAZCopy += " /XO"; // Only copy new files
-                strAZCopy += " /V:\"" + strLogFile + "\""; // Specify a log file
+                strAZCopy += " make";
+                strAZCopy += " \"" + strSASURL + "\"";
+                ALScript.Add(strAZCopy);
+
+                ALScript.Add("");
+
+                strAZCopy = "\"" + SQLDwConfig.FileAZCopy + "\"";
+                strAZCopy += " cp";
+                strAZCopy += " \"" + SQLDwConfig.BCPOutputFolder + "\\" + Constants.SUB_FOLDER_GZ + "\\*\"";
+                strAZCopy += " \"" + strSASURL + "\"";
+                strAZCopy += " --recursive";
+                /*
+                    strAZCopy += " /pattern:%FilePattern%"; // Specify the default file format at gzip compressed
+                    strAZCopy += " /NC:4";
+                    strAZCopy += " /S"; // Loop through all subfoldes
+                    strAZCopy += " /Y"; // Suppress any prompts
+                    strAZCopy += " /XO"; // Only copy new files
+                    strAZCopy += " /V:\"" + strLogFile + "\""; // Specify a log file
+                */
                 ALScript.Add(strAZCopy);
                 GenerateFile(strFileURL, ALScript);
 

@@ -32,6 +32,7 @@ namespace SQLDwGenerator
         public const string SUB_FOLDER_LIST = "Lists";
         public const string SUB_FOLDER_SCRIPTS = "Scripts";
         public const string SUB_FOLDER_SQLDW_CONN = "SQLDWConnections";
+        public const string SUB_FOLDER_GZ = "DWExport";
 
         public const string FOLDER_CONNECTION_TYPE = "SQLConfiguration";
         public const string FILE_TABLE_LIST = "TableList.sql";

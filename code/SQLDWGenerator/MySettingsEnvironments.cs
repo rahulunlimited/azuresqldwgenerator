@@ -20,7 +20,7 @@ namespace SQLDwGenerator
 
         public string ConnectionType, ServerName, DatabaseName, AuthenticationType, UserName, Password;
         public string BCPOutputFolder, BCPOutputFormat;
-        public string AzStorageAccount, AzContainer, AzStorageKey;
+        public string AzStorageAccount, AzContainer, AzSASToken, AzStorageKey;
         public string File7Zip, FileAZCopy;
         public string ConfigFileName;
 
@@ -92,7 +92,7 @@ namespace SQLDwGenerator
             string strConfigName,
             string strConnectionType, string strServerName, string strDatabaseName, string strAuthenticationType, string strUserName, string strPassword,
             string strBCPOutputFolder, string strBCPOutputFormat,
-            string strAzStorageAccount, string strAzContainer, string strAzStorageKey,
+            string strAzStorageAccount, string strAzContainer, string strAzSASToken, string strAzStorageKey,
             string strFile7Zip, string strFileAZCopy)
         {
 
@@ -115,6 +115,7 @@ namespace SQLDwGenerator
                 AzStorageAccount = strAzStorageAccount;
                 AzContainer = strAzContainer;
                 AzStorageKey = strAzStorageKey;
+                AzSASToken = strAzSASToken;
                 File7Zip = strFile7Zip;
                 FileAZCopy = strFileAZCopy;
 
@@ -137,6 +138,7 @@ namespace SQLDwGenerator
                 w.WriteElementString("BCPOutputFormat", BCPOutputFormat);
                 w.WriteElementString("AzureStorageAccount", AzStorageAccount);
                 w.WriteElementString("AzureContainer", AzContainer);
+                w.WriteElementString("AzureSASToken", AzSASToken);
                 w.WriteElementString("AzureStorageKey", AzStorageKey);
 
                 w.WriteElementString("File7Zip", File7Zip);
@@ -174,6 +176,7 @@ namespace SQLDwGenerator
                 BCPOutputFormat = doc.GetElementsByTagName("BCPOutputFormat")[0].InnerXml;
                 AzStorageAccount = doc.GetElementsByTagName("AzureStorageAccount")[0].InnerXml;
                 AzContainer = doc.GetElementsByTagName("AzureContainer")[0].InnerXml;
+                AzSASToken = doc.GetElementsByTagName("AzureSASToken")[0].InnerXml;
                 AzStorageKey = doc.GetElementsByTagName("AzureStorageKey")[0].InnerXml;
 
 

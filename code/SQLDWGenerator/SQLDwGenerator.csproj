@@ -146,8 +146,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="SampleXML\Settings\AdventureWorks2016.Config" />
-    <None Include="SampleXML\Settings\AdventureWorksDW2017.Config" />
     <None Include="SampleXML\Settings\WideWorldImporters.Config" />
     <None Include="SQLConfiguration\Azure DataWarehouse\Integrated.ConnectionStringFormat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -181,8 +179,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="SampleXML\Lists\AdventureWorks2016.xml" />
-    <Content Include="SampleXML\Lists\AdventureWorksDW2017.xml" />
     <Content Include="SampleXML\Lists\WideWorldImporters.xml" />
     <Content Include="SQLConfiguration\Azure DataWarehouse\ColumnList.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

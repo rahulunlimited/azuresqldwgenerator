@@ -66,10 +66,11 @@ namespace SQLDwGenerator
             foreach (DataGridViewRow row in dgvMigrate.Rows)
                 row.Cells[DGV_COL_SELECT].Value = true;
 
+            /*
             btnPrevious.Enabled = false;
             btnNext.Enabled = false;
             btnMigrate.Enabled = false;
-
+            */
             LoadInitialData();
         }
 
