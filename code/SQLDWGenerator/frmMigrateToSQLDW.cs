@@ -145,7 +145,7 @@ namespace SQLDwGenerator
 
 
                     ShowProgressMessage("Creating External Tables");
-                    SQL = ScriptWriter.GenerateExternalTableCreate(dtTable, true, true);
+                    SQL = ScriptWriter.GenerateTableCreateExternal(dtTable, true, true);
                     comm = new SqlCommand(SQL, conn);
                     comm.CommandTimeout = 0;
                     comm.ExecuteNonQuery();
@@ -154,7 +154,7 @@ namespace SQLDwGenerator
                 if (CheckMigrationStep(Constants.MIGRATE_STEP_DATA_WAREHOUSE_TABLE))
                 {
                     ShowProgressMessage("Creating Data Warehouse Tables");
-                    SQL = ScriptWriter.GenerateDWHTableCreate(dtTable, true, true);
+                    SQL = ScriptWriter.GenerateTableCreateDWH(dtTable, true, true);
                     comm = new SqlCommand(SQL, conn);
                     comm.CommandTimeout = 0;
                     comm.ExecuteNonQuery();

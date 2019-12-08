@@ -26,6 +26,7 @@ namespace SQLDwGenerator
         public const string SCALE = "Scale";
         public const string IS_NULLABLE = "IS_NULLABLE";
         public const string ORDER = "ColumnOrder";
+        public const string PKCOLUMN = "PKColumn";
 
         public const int MODE_CRLF_NONE = 0;
         public const int MODE_CRLF_REPLACE = 1;
@@ -37,7 +38,9 @@ namespace SQLDwGenerator
         public const string COL_SCRIPT_TYPE_SELECT_WITH_CRLF_REPLACE = "SELECT_CRLF_REPLACE";
         public const string COL_SCRIPT_TYPE_SELECT_WITH_CRLF_REVERT = "SELECT_CRLF_REVERT";
         public const string COL_SCRIPT_TYPE_CREATE_TABLE_DWH = "CREATE-TABLE-DWH";
-        public const string COL_SCRIPT_TYPE_CERATE_TABLE_EXT = "CREATE-TABLE-EXT";
+        public const string COL_SCRIPT_TYPE_CREATE_TABLE_EXT = "CREATE-TABLE-EXT";
+        public const string COL_SCRIPT_TYPE_CREATE_TABLE_STG = "CREATE-TABLE-STG";
+        public const string COL_SCRIPT_TYPE_CREATE_TABLE_PSA = "CREATE-TABLE-PSA";
 
         public const string COLUMN_SEPERATOR = ", ";
 
@@ -59,6 +62,7 @@ namespace SQLDwGenerator
             ColumnList.Columns.Add(SCALE, Type.GetType("System.Int32"));
             ColumnList.Columns.Add(IS_NULLABLE, Type.GetType("System.Int32"));
             ColumnList.Columns.Add(ORDER, Type.GetType("System.Int32"));
+            ColumnList.Columns.Add(PKCOLUMN, Type.GetType("System.Int32"));
 
             // Get the connection string from the current selected configuration
             string connstr = SQLDwConfig.GetConnectionString();
@@ -129,12 +133,13 @@ namespace SQLDwGenerator
                 else if (datatype == "nvarchar" || datatype == "nchar")
                     maxLength = Constants.MAX_CHARACTER_NUMBER / 2;
 
+                int colLength;
                 // If the length is MAX (-1) set the maximum length as 8000. If the column type is nvarchar or nchar then the max length is 4000
                 if (length == -1)
-                {
                     // If lenght is MAX, change the length to 8000
-                    length = maxLength;
-                }
+                    colLength = maxLength;
+                else
+                    colLength = length;
 
                 if (TableType == Constants.TABLE_TYPE_EXTERNAL && datatype == "varbinary") continue;
                 if (datatype == "xml") continue;
@@ -149,15 +154,25 @@ namespace SQLDwGenerator
                     case "nchar":
                     case "binary":
                     case "varbinary":
-                        //If ReplaceCRLF then increase the column length for External table as the BCP will out more characters <CRLF> for each CRLF
-                        //These would however be replaced back in the INSERT script to main DWH table
-                        if (ReplaceCRLF == Constants.YES && TableType == Constants.TABLE_TYPE_EXTERNAL) 
-                            length = length + Properties.Settings.Default.AddCharactersForCRLF;
 
-                        if (length > maxLength || length == -1)
-                            length = maxLength;
+                        if (TableType == Constants.TABLE_TYPE_STG || TableType == Constants.TABLE_TYPE_TEMPORAL)
+                            if(length == -1)
+                                colstring += datatype + "(MAX)";
+                            else
+                                colstring += datatype + "(" + colLength + ")";
+                        else
+                        {
 
-                        colstring += datatype + "(" + length + ")";
+                            //If ReplaceCRLF then increase the column length for External table as the BCP will out more characters <CRLF> for each CRLF
+                            //These would however be replaced back in the INSERT script to main DWH table
+                            if (ReplaceCRLF == Constants.YES && TableType == Constants.TABLE_TYPE_EXTERNAL)
+                                colLength = colLength + Properties.Settings.Default.AddCharactersForCRLF;
+
+                            if (colLength > maxLength)
+                                colLength = maxLength;
+
+                            colstring += datatype + "(" + colLength + ")";
+                        }
                         break;
                     case "time":
                     case "datetimeoffset":
@@ -194,7 +209,10 @@ namespace SQLDwGenerator
                     //SQL DW does not support geography and geometry. Change the column to varbinary(8000)
                     case "geometry":
                     case "geography":
-                        colstring += "varbinary(" + Constants.MAX_CHARACTER_NUMBER +")";
+                        if (TableType == Constants.TABLE_TYPE_EXTERNAL && TableType == Constants.TABLE_TYPE_DWH)
+                            colstring += "varbinary(" + Constants.MAX_CHARACTER_NUMBER +")";
+                        else
+                            colstring += datatype;
                         break;
                 }
 
@@ -414,11 +432,14 @@ namespace SQLDwGenerator
 
             switch (ScriptType)
             {
-                case MyColumnList.COL_SCRIPT_TYPE_CERATE_TABLE_EXT:
+                case MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_EXT:
                     colString = GetColListForCREATETABLE(Constants.TABLE_TYPE_EXTERNAL, ReplaceCRLF);
                     break;
                 case MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_DWH:
                     colString = GetColListForCREATETABLE(Constants.TABLE_TYPE_DWH, "");
+                    break;
+                case MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_STG:
+                    colString = GetColListForCREATETABLE(Constants.TABLE_TYPE_STG, "");
                     break;
             }
 

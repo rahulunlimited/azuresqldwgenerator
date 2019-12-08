@@ -102,7 +102,7 @@
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 81.07143F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 180F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 31F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 223F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 224F));
             this.tableLayoutPanel3.Controls.Add(this.btnGenerate, 2, 1);
             this.tableLayoutPanel3.Controls.Add(this.cmbDataType, 1, 1);
             this.tableLayoutPanel3.Controls.Add(this.label3, 0, 1);
@@ -118,7 +118,7 @@
             // btnGenerate
             // 
             this.btnGenerate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnGenerate.Location = new System.Drawing.Point(389, 13);
+            this.btnGenerate.Location = new System.Drawing.Point(388, 13);
             this.btnGenerate.Name = "btnGenerate";
             this.btnGenerate.Size = new System.Drawing.Size(174, 27);
             this.btnGenerate.TabIndex = 1;
@@ -133,7 +133,7 @@
             this.cmbDataType.FormattingEnabled = true;
             this.cmbDataType.Location = new System.Drawing.Point(76, 16);
             this.cmbDataType.Name = "cmbDataType";
-            this.cmbDataType.Size = new System.Drawing.Size(307, 21);
+            this.cmbDataType.Size = new System.Drawing.Size(306, 21);
             this.cmbDataType.TabIndex = 0;
             // 
             // label3
@@ -148,8 +148,8 @@
             // 
             // btnMigrate
             // 
-            this.btnMigrate.Location = new System.Drawing.Point(599, 12);
-            this.btnMigrate.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnMigrate.Location = new System.Drawing.Point(598, 12);
+            this.btnMigrate.Margin = new System.Windows.Forms.Padding(2);
             this.btnMigrate.Name = "btnMigrate";
             this.btnMigrate.Size = new System.Drawing.Size(190, 28);
             this.btnMigrate.TabIndex = 3;
@@ -271,7 +271,7 @@
             // 
             this.optSelectAll.AutoSize = true;
             this.optSelectAll.Location = new System.Drawing.Point(2, 2);
-            this.optSelectAll.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.optSelectAll.Margin = new System.Windows.Forms.Padding(2);
             this.optSelectAll.Name = "optSelectAll";
             this.optSelectAll.Size = new System.Drawing.Size(70, 17);
             this.optSelectAll.TabIndex = 4;

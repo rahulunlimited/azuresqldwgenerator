@@ -44,7 +44,7 @@ namespace SQLDwGenerator
         /// </summary>
         /// <param name="TableList"></param>
         /// <param name="blnDrop">Specify if the Script should contain Drop and Create</param>
-        public string GenerateExternalTableCreate(MyTableList TableList, bool blnDrop, bool ReturnScriptFlag)
+        public string GenerateTableCreateExternal(MyTableList TableList, bool blnDrop, bool ReturnScriptFlag)
         {
             string strSchemaName, strTableName, strTableExists, strTableNameExternal;
             string strFileURL;
@@ -61,7 +61,7 @@ namespace SQLDwGenerator
             {
 
                 DataTable dtTable = TableList.GetTableList();
-                GenerateSchema(TableList, ALScript);
+                GenerateSchemaList(TableList, ALScript);
 
                 foreach (DataRow row in dtTable.Rows)
                 {
@@ -102,7 +102,7 @@ namespace SQLDwGenerator
 
                         // Get list of columns for creating the external table
                         MyColumnList ColumnList = new MyColumnList(strSchemaName, strTableName, SQLDwConfig);
-                        string colstring = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_CERATE_TABLE_EXT, row[MyTableList.REPLACE_CRLF].ToString());
+                        string colstring = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_EXT, row[MyTableList.REPLACE_CRLF].ToString());
 
                         ALScript.Add(colstring);
                         ALScript.Add(")");
@@ -157,7 +157,7 @@ namespace SQLDwGenerator
         /// </summary>
         /// <param name="TableList"></param>
         /// <param name="blnDrop">Specify if the Script should contain Drop and Create</param>
-        public string GenerateDWHTableCreate(MyTableList TableList, bool blnDrop, bool ReturnScriptFlag)
+        public string GenerateTableCreateDWH(MyTableList TableList, bool blnDrop, bool ReturnScriptFlag)
         {
             ArrayList ALScript = new ArrayList();
 
@@ -170,7 +170,7 @@ namespace SQLDwGenerator
             try
             {
                 DataTable dtTable = TableList.GetTableList();
-                GenerateSchema(TableList, ALScript);
+                GenerateSchemaList(TableList, ALScript);
 
                 foreach (DataRow row in dtTable.Rows)
                 {
@@ -214,6 +214,173 @@ namespace SQLDwGenerator
                     ALScript.Add(strIndex);
 
                     ALScript.Add(")");
+                    ALScript.Add("END");
+                    //ALScript.Add("GO");
+                    ALScript.Add("");
+                    ALScript.Add("");
+                }
+                GenerateFile(strFileURL, ALScript);
+
+                string strReturn = "";
+                if (ReturnScriptFlag)
+                    strReturn = string.Join(Environment.NewLine, ALScript.ToArray());
+
+                return strReturn;
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+            }
+        }
+
+
+        /// <summary>
+        /// Genreate Script for creating the STG Table
+        /// </summary>
+        /// <param name="TableList"></param>
+        /// <param name="blnDrop">Specify if the Script should contain Drop and Create</param>
+        public string GenerateTableCreateSTG(MyTableList TableList, bool blnDrop, bool ReturnScriptFlag)
+        {
+            ArrayList ALScript = new ArrayList();
+
+            string strSchemaName, strTableName, strTableNameSTG, strSchemaNameSTG, strTableExists;
+
+            // Specify the file name for the Script
+            string strFileURL, strFileSuffix;
+            strFileSuffix = ".STGTable.CREATE.sql";
+            strFileURL = OutputFolder + "\\" + SQLDwConfig.ConfigFileName.Replace(".Config", strFileSuffix);
+            try
+            {
+                strSchemaNameSTG = Constants.SCHEMA_STAGE;
+                DataTable dtTable = TableList.GetTableList();
+                ALScript.Add(strSchemaNameSTG);
+
+                foreach (DataRow row in dtTable.Rows)
+                {
+                    // Skip table creating script if table is unselected in the Grid
+                    if ((string)row[MyTableList.SELECT].ToString() == Boolean.FalseString || (string)row[MyTableList.SELECT].ToString() == "") continue;
+
+                    strSchemaName = row[MyTableList.SCHEMA_NAME].ToString();
+                    strTableName = row[MyTableList.TABLE_NAME].ToString();
+                    strTableNameSTG = strSchemaName + "_" + strTableName;
+
+                    strTableExists = GetTableExistsSQL(strSchemaNameSTG, strTableNameSTG);
+
+                    if (blnDrop)
+                    {
+                        // Drop Table if specified
+                        strTableExists = "IF EXISTS(" + strTableExists + ")";
+                        ALScript.Add(strTableExists);
+                        ALScript.Add("DROP TABLE [" + strSchemaNameSTG + "].[" + strTableNameSTG + "]");
+                    }
+                    else
+                    {
+                        strTableExists = "IF NOT EXISTS(" + strTableExists + ")";
+                        ALScript.Add(strTableExists);
+                    }
+
+                    ALScript.Add("BEGIN");
+                    ALScript.Add("CREATE TABLE [" + strSchemaNameSTG + "].[" + strTableNameSTG + "] (");
+
+                    // Get list of columns for creating the SQL DW table
+                    MyColumnList ColumnList = new MyColumnList(strSchemaName, strTableName, SQLDwConfig);
+                    string colstring = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_STG, "");
+
+                    ALScript.Add(colstring);
+                    ALScript.Add(")");
+
+                    ALScript.Add("END");
+                    //ALScript.Add("GO");
+                    ALScript.Add("");
+                    ALScript.Add("");
+                }
+                GenerateFile(strFileURL, ALScript);
+
+                string strReturn = "";
+                if (ReturnScriptFlag)
+                    strReturn = string.Join(Environment.NewLine, ALScript.ToArray());
+
+                return strReturn;
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+            }
+        }
+
+
+
+        /// <summary>
+        /// Genreate Script for creating the STG Table
+        /// </summary>
+        /// <param name="TableList"></param>
+        /// <param name="blnDrop">Specify if the Script should contain Drop and Create</param>
+        public string GenerateTableCreatePersistent(MyTableList TableList, bool blnDrop, bool ReturnScriptFlag)
+        {
+            ArrayList ALScript = new ArrayList();
+
+            string strSchemaName, strTableName, strTableNamePSA, strSchemaNamePSA, strTableExists;
+
+            // Specify the file name for the Script
+            string strFileURL, strFileSuffix;
+            strFileSuffix = ".PersistentTable.CREATE.sql";
+            strFileURL = OutputFolder + "\\" + SQLDwConfig.ConfigFileName.Replace(".Config", strFileSuffix);
+            try
+            {
+                strSchemaNamePSA = Constants.SCHEMA_PERSISTENT;
+
+                DataTable dtTable = TableList.GetTableList();
+                ALScript.Add(GenerateSchema(strSchemaNamePSA));
+
+                foreach (DataRow row in dtTable.Rows)
+                {
+                    // Skip table creating script if table is unselected in the Grid
+                    if ((string)row[MyTableList.SELECT].ToString() == Boolean.FalseString || (string)row[MyTableList.SELECT].ToString() == "") continue;
+
+                    strSchemaName = row[MyTableList.SCHEMA_NAME].ToString();
+                    strTableName = row[MyTableList.TABLE_NAME].ToString();
+                    strTableNamePSA = strSchemaName + "_" + strTableName;
+
+                    strTableExists = GetTableExistsSQL(strSchemaNamePSA, strTableNamePSA);
+
+                    if (blnDrop)
+                    {
+                        // Drop Table if specified
+                        strTableExists = "IF EXISTS(" + strTableExists + ")";
+                        ALScript.Add(strTableExists);
+                        ALScript.Add("DROP TABLE [" + strSchemaNamePSA + "].[" + strTableNamePSA + "]");
+                    }
+                    else
+                    {
+                        strTableExists = "IF NOT EXISTS(" + strTableExists + ")";
+                        ALScript.Add(strTableExists);
+                    }
+
+                    ALScript.Add("BEGIN");
+                    ALScript.Add("CREATE TABLE [" + strSchemaNamePSA + "].[" + strTableNamePSA + "] (");
+
+                    // Get list of columns for creating the SQL DW table
+                    MyColumnList ColumnList = new MyColumnList(strSchemaName, strTableName, SQLDwConfig);
+                    string colstring = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_PSA, "");
+                    ALScript.Add(",[ValidFrom] [datetime2](2) GENERATED ALWAYS AS ROW START NOT NULL");
+                    ALScript.Add(",[ValidTo] [datetime2](2) GENERATED ALWAYS AS ROW START NOT NULL");
+
+                    ALScript.Add(")");
+
+
+                    ALScript.Add(colstring);
+                    ALScript.Add(")");
+
                     ALScript.Add("END");
                     //ALScript.Add("GO");
                     ALScript.Add("");
@@ -1223,16 +1390,25 @@ namespace SQLDwGenerator
         /// </summary>
         /// <param name="tblList"></param>
         /// <param name="alScript"></param>
-        private void GenerateSchema(MyTableList tblList, ArrayList alScript)
+        private void GenerateSchemaList(MyTableList tblList, ArrayList alScript)
         {
             DataTable dtSchema = tblList.GetDistinctColumnValues(MyTableList.SCHEMA_NAME);
             foreach (DataRow row in dtSchema.Rows)
             {
-                alScript.Add("IF NOT EXISTS(SELECT * FROM sys.schemas WHERE NAME = '" + row[0].ToString() + "')");
-                alScript.Add("EXEC sp_executesql N'CREATE SCHEMA [" + row[0].ToString() + "]'");
+                alScript.Add(GenerateSchema(row[0].ToString() ));
                 alScript.Add("");
             }
             alScript.Add("");
+        }
+
+        private string GenerateSchema(string strSchemaName)
+        {
+            string strSchemaSQL;
+            strSchemaSQL = "IF NOT EXISTS(SELECT * FROM sys.schemas WHERE NAME = '" + strSchemaName + "')" + Environment.NewLine;
+            strSchemaSQL += "EXEC sp_executesql N'CREATE SCHEMA [" + strSchemaName + "]'" + Environment.NewLine;
+
+            return strSchemaSQL;
+        
         }
 
         private string GetTableExistsSQL(string SchemaName, string TableName)

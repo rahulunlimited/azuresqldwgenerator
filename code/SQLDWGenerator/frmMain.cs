@@ -255,16 +255,16 @@ namespace SQLDwGenerator
             switch (strScriptType)
             {
                 case Constants.SCRIPT_TYPE_EXTERNAL_TABLE_CREATE:
-                    ScriptWriter.GenerateExternalTableCreate(dtTable, false, false);
+                    ScriptWriter.GenerateTableCreateExternal(dtTable, false, false);
                     break;
                 case Constants.SCRIPT_TYPE_DWH_TABLE_CREATE:
-                    ScriptWriter.GenerateDWHTableCreate(dtTable, false, false);
+                    ScriptWriter.GenerateTableCreateDWH(dtTable, false, false);
                     break;
                 case Constants.SCRIPT_TYPE_EXTERNAL_TABLE_CREATE_DROP:
-                    ScriptWriter.GenerateExternalTableCreate(dtTable, true, false);
+                    ScriptWriter.GenerateTableCreateExternal(dtTable, true, false);
                     break;
                 case Constants.SCRIPT_TYPE_DWH_TABLE_CREATE_DROP:
-                    ScriptWriter.GenerateDWHTableCreate(dtTable, true, false);
+                    ScriptWriter.GenerateTableCreateDWH(dtTable, true, false);
                     break;
                 case Constants.SCRIPT_TYPE_BCP:
                     ScriptWriter.GenerateBCPScript(dtTable, false, false);
@@ -301,8 +301,8 @@ namespace SQLDwGenerator
                     break;
                 case Constants.SCRIPT_TYPE_ALL:
                     //Genreate All Scripts
-                    ScriptWriter.GenerateExternalTableCreate(dtTable, false, false);
-                    ScriptWriter.GenerateDWHTableCreate(dtTable, false, false);
+                    ScriptWriter.GenerateTableCreateExternal(dtTable, false, false);
+                    ScriptWriter.GenerateTableCreateDWH(dtTable, false, false);
                     ScriptWriter.GenerateBCPScript(dtTable, false, false);
                     ScriptWriter.GenerateInsertFromExternalTable(dtTable, false);
                     ScriptWriter.GenerateTableDrop(dtTable, Constants.TABLE_TYPE_EXTERNAL);
@@ -312,6 +312,7 @@ namespace SQLDwGenerator
                     ScriptWriter.GeneratePSFileZip(false);
                     ScriptWriter.GenerateAZCopyFile(false);
                     ScriptWriter.GenerateAzurePrepSQL(false);
+                    ScriptWriter.GenerateTableCreateSTG(dtTable, false, false);
                     break;
             }
             sbpMessage.Text = "File(s) Generated";
