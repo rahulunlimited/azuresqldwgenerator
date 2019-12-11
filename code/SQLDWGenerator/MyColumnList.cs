@@ -27,10 +27,14 @@ namespace SQLDwGenerator
         public const string IS_NULLABLE = "IS_NULLABLE";
         public const string ORDER = "ColumnOrder";
         public const string PKCOLUMN = "PKColumn";
+        public const string PKDESCENDING = "PKDescending";
 
         public const int MODE_CRLF_NONE = 0;
         public const int MODE_CRLF_REPLACE = 1;
         public const int MODE_CRLF_REVERT = 2;
+
+        public const int DB_MODE_SQLDW = 1;
+        public const int DB_MODE_SQLDB = 2;
 
         public const string COL_SCRIPT_TYPE_INSERT = "INSERT";
         public const string COL_SCRIPT_TYPE_SELECT = "SELECT";
@@ -41,6 +45,8 @@ namespace SQLDwGenerator
         public const string COL_SCRIPT_TYPE_CREATE_TABLE_EXT = "CREATE-TABLE-EXT";
         public const string COL_SCRIPT_TYPE_CREATE_TABLE_STG = "CREATE-TABLE-STG";
         public const string COL_SCRIPT_TYPE_CREATE_TABLE_PSA = "CREATE-TABLE-PSA";
+        public const string COL_SCRIPT_TYPE_PRIMARY_KEY = "PRIMARY-KEY";
+        public const string COL_SCRIPT_TYPE_MERGE_SRC_SELECT = "MERGE-SRC-SELECT";
 
         public const string COLUMN_SEPERATOR = ", ";
 
@@ -63,6 +69,7 @@ namespace SQLDwGenerator
             ColumnList.Columns.Add(IS_NULLABLE, Type.GetType("System.Int32"));
             ColumnList.Columns.Add(ORDER, Type.GetType("System.Int32"));
             ColumnList.Columns.Add(PKCOLUMN, Type.GetType("System.Int32"));
+            ColumnList.Columns.Add(PKDESCENDING, Type.GetType("System.Int32"));
 
             // Get the connection string from the current selected configuration
             string connstr = SQLDwConfig.GetConnectionString();
@@ -155,7 +162,7 @@ namespace SQLDwGenerator
                     case "binary":
                     case "varbinary":
 
-                        if (TableType == Constants.TABLE_TYPE_STG || TableType == Constants.TABLE_TYPE_TEMPORAL)
+                        if (TableType == Constants.TABLE_TYPE_STG || TableType == Constants.TABLE_TYPE_PERSISTENT)
                             if(length == -1)
                                 colstring += datatype + "(MAX)";
                             else
@@ -226,11 +233,71 @@ namespace SQLDwGenerator
 
             colstring = colstring.TrimEnd();
             //Remove the last comma
+            if (TableType != Constants.TABLE_TYPE_PERSISTENT)
+            {
+                if (colstring.EndsWith(COLUMN_SEPERATOR.Trim()))
+                    colstring = colstring.Substring(0, colstring.Length - 1);
+            }
+            return colstring;
+        }
+
+
+
+        private string GetColListForPrimaryKey()
+        {
+            string colstring = "";
+
+            foreach (DataRow col in ColumnList.Rows)
+            {
+
+                string colName;
+                colName = col[COLUMN_NAME].ToString();
+
+                if (col[PKCOLUMN].ToString() == "1")
+                {
+                    colstring += Constants.TAB + colName;
+                    if (col[PKDESCENDING].ToString() == "1")
+                        colstring += " DESC";
+                    else
+                        colstring += " ASC";
+                    colstring += COLUMN_SEPERATOR + Environment.NewLine;
+                }
+            }
+
+            colstring = colstring.TrimEnd();
+            //Remove the last comma
             if (colstring.EndsWith(COLUMN_SEPERATOR.Trim()))
                 colstring = colstring.Substring(0, colstring.Length - 1);
 
             return colstring;
         }
+
+
+        private string GetColListForKeyJoin(string strSourceAlias, string strTargetAlias)
+        {
+            string colstring = "";
+
+            foreach (DataRow col in ColumnList.Rows)
+            {
+
+                string colName;
+                colName = col[COLUMN_NAME].ToString();
+
+                if (col[PKCOLUMN].ToString() == "1")
+                {
+                    colstring += Constants.TAB + strSourceAlias + "." + colName + " = " + strTargetAlias + "." + colName;
+                    colstring += COLUMN_SEPERATOR + Environment.NewLine;
+                }
+            }
+
+            colstring = colstring.TrimEnd();
+            //Remove the last comma
+            if (colstring.EndsWith(COLUMN_SEPERATOR.Trim()))
+                colstring = colstring.Substring(0, colstring.Length - 1);
+
+            return colstring;
+        }
+
 
         /// <summary>
         /// Get Column list for INSERT from External Table to DW table
@@ -321,7 +388,7 @@ namespace SQLDwGenerator
         /// <param name="CRLFMode">Specify if CRLF is to be handled. Text Columns will have code to replace CRLF with [CRLF]</FR></param>
         /// <returns></returns>
 
-        private string GetColListForSELECT(int CRLFMode)
+        private string GetColListForSELECT(int CRLFMode, int DBMode)
         {
             string colString;
 
@@ -337,45 +404,52 @@ namespace SQLDwGenerator
                 int length;
                 length = (int)col[MyColumnList.LENGTH];
 
-                switch (dataType)
+                if (DBMode == DB_MODE_SQLDW)
                 {
-                    case "varchar":
-                    case "char":
-                    case "nvarchar":
-                    case "nchar":
-                        switch (CRLFMode)
-                        {
-                            //While generating data for BCP replace CRLF with [CR][LF]
-                            case MyColumnList.MODE_CRLF_REPLACE:
-                                int colLength;
-                                colLength = length + Properties.Settings.Default.AddCharactersForCRLF;
-                                colString += "LEFT(REPLACE(REPLACE(" + colName + ", CHAR(13), '<CR>'), CHAR(10), '<LF>'), " + colLength + ") " + colName;
-                                break;
-                            //While generating SELECT for Insert from BLOB to Main revernt [CR][LF] with actual CRLF
-                            case MyColumnList.MODE_CRLF_REVERT:
-                                colString += "REPLACE(REPLACE(" + colName + ", '<CR>', CHAR(13)), '<LF>', CHAR(10))";
-                                break;
-                            default:
-                                colString += colName;
-                                break;
-                        }
-                        colString += COLUMN_SEPERATOR;
-                        break;
-                    case "xml":
-                        // Ignore XML data columns.
-                        colString += "";
-                        break;
-                    case "varbinary":
-                        if (length == -1 || length > Constants.MAX_CHARACTER_NUMBER)
-                            //If Varbinary(MAX) or VARBINARY(>8000) then ignore
+                    switch (dataType)
+                    {
+                        case "varchar":
+                        case "char":
+                        case "nvarchar":
+                        case "nchar":
+                            switch (CRLFMode)
+                            {
+                                //While generating data for BCP replace CRLF with [CR][LF]
+                                case MyColumnList.MODE_CRLF_REPLACE:
+                                    int colLength;
+                                    colLength = length + Properties.Settings.Default.AddCharactersForCRLF;
+                                    colString += "LEFT(REPLACE(REPLACE(" + colName + ", CHAR(13), '<CR>'), CHAR(10), '<LF>'), " + colLength + ") " + colName;
+                                    break;
+                                //While generating SELECT for Insert from BLOB to Main revernt [CR][LF] with actual CRLF
+                                case MyColumnList.MODE_CRLF_REVERT:
+                                    colString += "REPLACE(REPLACE(" + colName + ", '<CR>', CHAR(13)), '<LF>', CHAR(10))";
+                                    break;
+                                default:
+                                    colString += colName;
+                                    break;
+                            }
+                            colString += COLUMN_SEPERATOR;
+                            break;
+                        case "xml":
+                            // Ignore XML data columns.
                             colString += "";
-                        else
-                            // Ensure values are not more than max allowable length
-                            colString += "LEFT(" + colName + ", " + Constants.MAX_CHARACTER_NUMBER + ")" + COLUMN_SEPERATOR;
-                        break;
-                    default:
-                        colString += colName + COLUMN_SEPERATOR;
-                        break;
+                            break;
+                        case "varbinary":
+                            if (length == -1 || length > Constants.MAX_CHARACTER_NUMBER)
+                                //If Varbinary(MAX) or VARBINARY(>8000) then ignore
+                                colString += "";
+                            else
+                                // Ensure values are not more than max allowable length
+                                colString += "LEFT(" + colName + ", " + Constants.MAX_CHARACTER_NUMBER + ")" + COLUMN_SEPERATOR;
+                            break;
+                        default:
+                            colString += colName + COLUMN_SEPERATOR;
+                            break;
+                    }
+                }
+                else if (DBMode == DB_MODE_SQLDB)
+                {
+                    colString += colName + COLUMN_SEPERATOR;
                 }
             }
 
@@ -401,13 +475,13 @@ namespace SQLDwGenerator
             switch(ScriptType)
             {
                 case MyColumnList.COL_SCRIPT_TYPE_SELECT:
-                    colString = GetColListForSELECT(MyColumnList.MODE_CRLF_NONE);
+                    colString = GetColListForSELECT(MyColumnList.MODE_CRLF_NONE, DB_MODE_SQLDW);
                     break;
                 case MyColumnList.COL_SCRIPT_TYPE_SELECT_WITH_CRLF_REPLACE:
-                    colString = GetColListForSELECT(MyColumnList.MODE_CRLF_REPLACE);
+                    colString = GetColListForSELECT(MyColumnList.MODE_CRLF_REPLACE, DB_MODE_SQLDW);
                     break;
                 case MyColumnList.COL_SCRIPT_TYPE_SELECT_WITH_CRLF_REVERT:
-                    colString = GetColListForSELECT(MyColumnList.MODE_CRLF_REVERT);
+                    colString = GetColListForSELECT(MyColumnList.MODE_CRLF_REVERT, DB_MODE_SQLDW);
                     break;
                 case MyColumnList.COL_SCRIPT_TYPE_INSERT:
                     colString = GetColListForINSERT();
@@ -415,9 +489,21 @@ namespace SQLDwGenerator
                 case MyColumnList.COL_SCRIPT_TYPE_FILE_HEADER:
                     colString = GetColListForFILEHEADER("|~|");
                     break;
+                case MyColumnList.COL_SCRIPT_TYPE_MERGE_SRC_SELECT:
+                    colString = GetColListForSELECT(MyColumnList.MODE_CRLF_REVERT, DB_MODE_SQLDB);
+                    break;
             }
 
             return colString;
+        }
+
+        public string GetKeyColumnJoinList(string strSourceAlias, string strTargetAlias)
+        {
+
+            string colstring = "";
+            colstring = GetColListForKeyJoin(strSourceAlias, strTargetAlias);
+
+            return colstring;
         }
 
         /// <summary>
@@ -426,7 +512,7 @@ namespace SQLDwGenerator
         /// <param name="ScriptType">Specify what type of Column list is needed</param>
         /// <param name="ReplaceCRLF">Specify if CRLF special characater is to be handled</param>
         /// <returns></returns>
-        public string GetColumnListSQL(string ScriptType, string ReplaceCRLF)
+        public string GetColumnListSQL(string ScriptType, string ReplaceCRLF = "")
         {
             string colString = "";
 
@@ -436,10 +522,13 @@ namespace SQLDwGenerator
                     colString = GetColListForCREATETABLE(Constants.TABLE_TYPE_EXTERNAL, ReplaceCRLF);
                     break;
                 case MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_DWH:
-                    colString = GetColListForCREATETABLE(Constants.TABLE_TYPE_DWH, "");
+                    colString = GetColListForCREATETABLE(Constants.TABLE_TYPE_DWH, ReplaceCRLF);
                     break;
                 case MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_STG:
-                    colString = GetColListForCREATETABLE(Constants.TABLE_TYPE_STG, "");
+                    colString = GetColListForCREATETABLE(Constants.TABLE_TYPE_STG, ReplaceCRLF);
+                    break;
+                case MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_PSA:
+                    colString = GetColListForCREATETABLE(Constants.TABLE_TYPE_PERSISTENT, ReplaceCRLF);
                     break;
             }
 

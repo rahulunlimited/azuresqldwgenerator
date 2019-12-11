@@ -258,7 +258,7 @@ namespace SQLDwGenerator
             {
                 strSchemaNameSTG = Constants.SCHEMA_STAGE;
                 DataTable dtTable = TableList.GetTableList();
-                ALScript.Add(strSchemaNameSTG);
+                ALScript.Add(GenerateSchema(strSchemaNameSTG));
 
                 foreach (DataRow row in dtTable.Rows)
                 {
@@ -372,13 +372,24 @@ namespace SQLDwGenerator
                     // Get list of columns for creating the SQL DW table
                     MyColumnList ColumnList = new MyColumnList(strSchemaName, strTableName, SQLDwConfig);
                     string colstring = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_PSA, "");
-                    ALScript.Add(",[ValidFrom] [datetime2](2) GENERATED ALWAYS AS ROW START NOT NULL");
-                    ALScript.Add(",[ValidTo] [datetime2](2) GENERATED ALWAYS AS ROW START NOT NULL");
-
-                    ALScript.Add(")");
-
-
                     ALScript.Add(colstring);
+                    ALScript.Add(Constants.TAB + "[DWHashKey] nvarchar(100) NOT NULL,");
+                    ALScript.Add(Constants.TAB + "[ValidFrom] datetime2(2) GENERATED ALWAYS AS ROW START NOT NULL,");
+                    ALScript.Add(Constants.TAB + "[ValidTo] datetime2(2) GENERATED ALWAYS AS ROW END NOT NULL,");
+
+                    string strPKName = "PK_" + strSchemaNamePSA + "_" + strTableNamePSA + "_ID";
+                    ALScript.Add("CONSTRAINT " + strPKName + " PRIMARY KEY CLUSTERED");
+                    colstring = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_PRIMARY_KEY);
+                    ALScript.Add("(");
+                    ALScript.Add(colstring);
+                    ALScript.Add(")");
+                    ALScript.Add("WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY],");
+                    ALScript.Add(Constants.TAB + "PERIOD FOR SYSTEM_TIME ([ValidFrom], [ValidTo])");
+                    ALScript.Add(") ON [PRIMARY]");
+                    ALScript.Add("WITH");
+                    ALScript.Add("(");
+                    string strHistoryTable = "[" + strSchemaNamePSA + "].[" + strTableNamePSA + "_HISTORY" + "]";
+                    ALScript.Add(Constants.TAB + "SYSTEM_VERSIONING = ON (HISTORY_TABLE = " + strHistoryTable + ")");
                     ALScript.Add(")");
 
                     ALScript.Add("END");
@@ -979,6 +990,79 @@ namespace SQLDwGenerator
                 throw ex;
             }
         }
+
+
+
+        public string GenerateMergeSQL(MyTableList TableList, bool ReturnScriptFlag)
+        {
+            string strSQL;
+            ArrayList ALScript = new ArrayList();
+
+            string strFileURL;
+            // Specify the file name for the Script
+            strFileURL = OutputFolder + "\\" + SQLDwConfig.ConfigFileName.Replace(".Config", ".MERGE.sql");
+
+            try
+            {
+                DataTable dtTable = TableList.GetTableList();
+
+                foreach (DataRow row in dtTable.Rows)
+                {
+                    if ((string)row[MyTableList.SELECT].ToString() == Boolean.FalseString || (string)row[MyTableList.SELECT].ToString() == "") continue;
+
+                    string strSchemaName, strTableName;
+                    strSchemaName = row[MyTableList.SCHEMA_NAME].ToString();
+                    strTableName = row[MyTableList.TABLE_NAME].ToString();
+                    MyColumnList ColumnList = new MyColumnList(strSchemaName, strTableName, SQLDwConfig);
+
+                    strTableName = row[MyTableList.SCHEMA_NAME].ToString() + "_" + row[MyTableList.TABLE_NAME].ToString();
+
+                    string strMergeSQL;
+                    strMergeSQL = "MERGE " + Constants.SCHEMA_PERSISTENT + "." + strTableName + " AS " + Constants.MERGE_SOURCE_TARGET;
+                    ALScript.Add(strMergeSQL);
+                    ALScript.Add("USING (");
+
+                    string strColList;
+                    strColList = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_MERGE_SRC_SELECT);
+
+                    string strSrcSELECT;
+                    ALScript.Add(Constants.TAB + "SELECT " + strColList);
+                    ALScript.Add(Constants.TAB + Constants.TAB + ",HASHBYTES('SHA2_512', CONCAT(" + strColList + ")) AS DWHashKey ");
+                    ALScript.Add(Constants.TAB + "FROM " + Constants.SCHEMA_STAGE + "." + strTableName);
+                    ALScript.Add(") AS " + Constants.MERGE_SOURCE_ALIAS);
+
+                    string strKeyJoinSQL;
+                    strKeyJoinSQL = ColumnList.GetKeyColumnJoinList(Constants.MERGE_SOURCE_ALIAS, Constants.MERGE_SOURCE_TARGET);
+                    ALScript.Add("ON (");
+                    ALScript.Add(strKeyJoinSQL);
+                    ALScript.Add(")");
+                    ALScript.Add("WHEN MATCHED");
+                    ALScript.Add(Constants.TAB + "AND " + Constants.MERGE_SOURCE_TARGET + ".DwHashKey <> " + Constants.MERGE_SOURCE_ALIAS + ".DwHashKey");
+                    ALScript.Add("THEN UPDATE SET");
+
+
+                    ALScript.Add("");
+                    ALScript.Add("");
+                    ALScript.Add("");
+                }
+                GenerateFile(strFileURL, ALScript);
+
+                string strReturn = "";
+                if (ReturnScriptFlag)
+                    strReturn = string.Join(Environment.NewLine, ALScript.ToArray());
+
+                return strReturn;
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
 
         /// <summary>
         /// Generate a script for emtpy file header. The script will generate 1 file for each table in the subfolder FileHeader

@@ -6,7 +6,8 @@ SELECT
     c.scale ,
     c.is_nullable,
 	c.column_id AS ColumnOrder,
-	CASE WHEN ic.object_id IS NOT NULL THEN 1 ELSE 0 END AS PKColumn
+	CASE WHEN ic.object_id IS NOT NULL THEN 1 ELSE 0 END AS PKColumn,
+	ISNULL(ic.is_descending_key, 0) AS PKDescending
 FROM sys.columns c
 INNER JOIN sys.types t ON c.system_type_id = t.user_type_id
 INNER JOIN sys.tables tbl on c.object_id = tbl.object_id

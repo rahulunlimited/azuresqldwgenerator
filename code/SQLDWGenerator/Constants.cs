@@ -65,7 +65,7 @@ namespace SQLDwGenerator
         public const string TABLE_TYPE_EXTERNAL = "EXTERNAL";
         public const string TABLE_TYPE_DWH = "DWH";
         public const string TABLE_TYPE_STG = "STG";
-        public const string TABLE_TYPE_TEMPORAL = "TEMPORAL";
+        public const string TABLE_TYPE_PERSISTENT = "PERSISTENT";
 
         public const string EXTERNAL_TABLE_PREFIX = "EXT_";
 
@@ -96,6 +96,9 @@ namespace SQLDwGenerator
 
         public const string SCHEMA_STAGE = "stg";
         public const string SCHEMA_PERSISTENT = "psa";
+
+        public const string MERGE_SOURCE_ALIAS = "SRC";
+        public const string MERGE_SOURCE_TARGET = "TGT";
 
 
 

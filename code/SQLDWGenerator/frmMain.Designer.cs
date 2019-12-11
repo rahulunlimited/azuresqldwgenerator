@@ -102,7 +102,7 @@
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 81.07143F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 180F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 31F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 224F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 225F));
             this.tableLayoutPanel3.Controls.Add(this.btnGenerate, 2, 1);
             this.tableLayoutPanel3.Controls.Add(this.cmbDataType, 1, 1);
             this.tableLayoutPanel3.Controls.Add(this.label3, 0, 1);
@@ -118,7 +118,7 @@
             // btnGenerate
             // 
             this.btnGenerate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnGenerate.Location = new System.Drawing.Point(388, 13);
+            this.btnGenerate.Location = new System.Drawing.Point(387, 13);
             this.btnGenerate.Name = "btnGenerate";
             this.btnGenerate.Size = new System.Drawing.Size(174, 27);
             this.btnGenerate.TabIndex = 1;
@@ -131,7 +131,7 @@
             this.cmbDataType.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbDataType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbDataType.FormattingEnabled = true;
-            this.cmbDataType.Location = new System.Drawing.Point(76, 16);
+            this.cmbDataType.Location = new System.Drawing.Point(75, 16);
             this.cmbDataType.Name = "cmbDataType";
             this.cmbDataType.Size = new System.Drawing.Size(306, 21);
             this.cmbDataType.TabIndex = 0;
@@ -142,13 +142,13 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(3, 20);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(67, 13);
+            this.label3.Size = new System.Drawing.Size(66, 13);
             this.label3.TabIndex = 2;
             this.label3.Text = "Script Type";
             // 
             // btnMigrate
             // 
-            this.btnMigrate.Location = new System.Drawing.Point(598, 12);
+            this.btnMigrate.Location = new System.Drawing.Point(597, 12);
             this.btnMigrate.Margin = new System.Windows.Forms.Padding(2);
             this.btnMigrate.Name = "btnMigrate";
             this.btnMigrate.Size = new System.Drawing.Size(190, 28);

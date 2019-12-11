@@ -313,6 +313,8 @@ namespace SQLDwGenerator
                     ScriptWriter.GenerateAZCopyFile(false);
                     ScriptWriter.GenerateAzurePrepSQL(false);
                     ScriptWriter.GenerateTableCreateSTG(dtTable, false, false);
+                    ScriptWriter.GenerateTableCreatePersistent(dtTable, false, false);
+                    ScriptWriter.GenerateMergeSQL(dtTable, false);
                     break;
             }
             sbpMessage.Text = "File(s) Generated";
