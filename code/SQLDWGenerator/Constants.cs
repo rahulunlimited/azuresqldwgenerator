@@ -98,7 +98,8 @@ namespace SQLDwGenerator
         public const string SCHEMA_PERSISTENT = "psa";
 
         public const string MERGE_SOURCE_ALIAS = "SRC";
-        public const string MERGE_SOURCE_TARGET = "TGT";
+        public const string MERGE_TARGET_ALIAS = "TGT";
+        public const string MERGE_HASH_COL = "DWHashKey";
 
 
 

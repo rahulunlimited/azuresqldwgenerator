@@ -200,7 +200,7 @@ namespace SQLDwGenerator
 
                     // Get list of columns for creating the SQL DW table
                     MyColumnList ColumnList = new MyColumnList(strSchemaName, strTableName, SQLDwConfig);
-                    string colstring = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_DWH, "");
+                    string colstring = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_DWH);
 
                     ALScript.Add(colstring);
                     ALScript.Add(")");
@@ -289,7 +289,7 @@ namespace SQLDwGenerator
 
                     // Get list of columns for creating the SQL DW table
                     MyColumnList ColumnList = new MyColumnList(strSchemaName, strTableName, SQLDwConfig);
-                    string colstring = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_STG, "");
+                    string colstring = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_STG);
 
                     ALScript.Add(colstring);
                     ALScript.Add(")");
@@ -371,9 +371,9 @@ namespace SQLDwGenerator
 
                     // Get list of columns for creating the SQL DW table
                     MyColumnList ColumnList = new MyColumnList(strSchemaName, strTableName, SQLDwConfig);
-                    string colstring = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_PSA, "");
+                    string colstring = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_PSA);
                     ALScript.Add(colstring);
-                    ALScript.Add(Constants.TAB + "[DWHashKey] nvarchar(100) NOT NULL,");
+                    ALScript.Add(Constants.TAB + "[" + Constants.MERGE_HASH_COL + "]" + " nvarchar(100) NOT NULL,");
                     ALScript.Add(Constants.TAB + "[ValidFrom] datetime2(2) GENERATED ALWAYS AS ROW START NOT NULL,");
                     ALScript.Add(Constants.TAB + "[ValidTo] datetime2(2) GENERATED ALWAYS AS ROW END NOT NULL,");
 
@@ -967,7 +967,9 @@ namespace SQLDwGenerator
                         strTableNameExternal = Constants.EXTERNAL_TABLE_PREFIX + strTableName;
                         strSQL += "INSERT INTO ";
                         strSQL += UtilGeneral.GetQuotedString(strSchemaName) + "." + UtilGeneral.GetQuotedString(strTableName) ;
+                        strSQL += "(";
                         strSQL += colstringINSERTTable;
+                        strSQL += ")";
                         strSQL += Environment.NewLine + "SELECT ";
                         strSQL += colstringSELECTTable;
                         strSQL += " FROM " + UtilGeneral.GetQuotedString(strSchemaName) + "." + UtilGeneral.GetQuotedString(strTableNameExternal) + " ";
@@ -1002,6 +1004,8 @@ namespace SQLDwGenerator
             // Specify the file name for the Script
             strFileURL = OutputFolder + "\\" + SQLDwConfig.ConfigFileName.Replace(".Config", ".MERGE.sql");
 
+            string strHasColumn = UtilGeneral.GetQuotedString(Constants.MERGE_HASH_COL);
+
             try
             {
                 DataTable dtTable = TableList.GetTableList();
@@ -1018,27 +1022,49 @@ namespace SQLDwGenerator
                     strTableName = row[MyTableList.SCHEMA_NAME].ToString() + "_" + row[MyTableList.TABLE_NAME].ToString();
 
                     string strMergeSQL;
-                    strMergeSQL = "MERGE " + Constants.SCHEMA_PERSISTENT + "." + strTableName + " AS " + Constants.MERGE_SOURCE_TARGET;
+                    strMergeSQL = "CREATE OR ALTER PROCEDURE ";
+                    strMergeSQL += Constants.SCHEMA_PERSISTENT + "." + "sp_Load_" + strTableName + " AS";
+                    ALScript.Add(strMergeSQL);
+                    strMergeSQL = "MERGE " + Constants.SCHEMA_PERSISTENT + "." + strTableName + " AS " + Constants.MERGE_TARGET_ALIAS;
                     ALScript.Add(strMergeSQL);
                     ALScript.Add("USING (");
 
                     string strColList;
                     strColList = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_MERGE_SRC_SELECT);
 
-                    string strSrcSELECT;
-                    ALScript.Add(Constants.TAB + "SELECT " + strColList);
-                    ALScript.Add(Constants.TAB + Constants.TAB + ",HASHBYTES('SHA2_512', CONCAT(" + strColList + ")) AS DWHashKey ");
+                    ALScript.Add(Constants.TAB + "SELECT ");
+                    ALScript.Add(Constants.TAB + Constants.TAB + strColList);
+                    ALScript.Add(Constants.TAB + Constants.TAB + ",HASHBYTES('SHA2_512', CONCAT(" + strColList + ")) AS " + Constants.MERGE_HASH_COL);
                     ALScript.Add(Constants.TAB + "FROM " + Constants.SCHEMA_STAGE + "." + strTableName);
                     ALScript.Add(") AS " + Constants.MERGE_SOURCE_ALIAS);
 
                     string strKeyJoinSQL;
-                    strKeyJoinSQL = ColumnList.GetKeyColumnJoinList(Constants.MERGE_SOURCE_ALIAS, Constants.MERGE_SOURCE_TARGET);
+                    strKeyJoinSQL = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_MERGE_KEY_COL_JOIN, Constants.MERGE_SOURCE_ALIAS, Constants.MERGE_TARGET_ALIAS);
                     ALScript.Add("ON (");
                     ALScript.Add(strKeyJoinSQL);
                     ALScript.Add(")");
+
                     ALScript.Add("WHEN MATCHED");
-                    ALScript.Add(Constants.TAB + "AND " + Constants.MERGE_SOURCE_TARGET + ".DwHashKey <> " + Constants.MERGE_SOURCE_ALIAS + ".DwHashKey");
-                    ALScript.Add("THEN UPDATE SET");
+                    ALScript.Add(Constants.TAB + "AND " + Constants.MERGE_TARGET_ALIAS + "." + strHasColumn + " <> " + Constants.MERGE_SOURCE_ALIAS + "." + strHasColumn);
+                    ALScript.Add(Constants.TAB + "THEN UPDATE SET");
+                    string strUpdateSet;
+                    strUpdateSet = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_MERGE_COL_UPDATE, Constants.MERGE_SOURCE_ALIAS, Constants.MERGE_TARGET_ALIAS);
+                    ALScript.Add(strUpdateSet);
+
+                    ALScript.Add("WHEN NOT MATCHED THEN");
+                    ALScript.Add("INSERT (");
+                    string colstringINSERTTable;
+                    colstringINSERTTable = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_INSERT);
+                    colstringINSERTTable += ", " + strHasColumn;
+                    ALScript.Add(Constants.TAB + colstringINSERTTable);
+                    ALScript.Add(")");
+                    string strInsertCol;
+                    ALScript.Add("VALUES (");
+                    strInsertCol = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_MERGE_COL_INSERT, Constants.MERGE_SOURCE_ALIAS);
+                    strInsertCol += ", " + Constants.MERGE_SOURCE_ALIAS + "." + strHasColumn;
+                    ALScript.Add(Constants.TAB + strInsertCol);
+                    ALScript.Add(");");
+
 
 
                     ALScript.Add("");

@@ -46,7 +46,11 @@ namespace SQLDwGenerator
         public const string COL_SCRIPT_TYPE_CREATE_TABLE_STG = "CREATE-TABLE-STG";
         public const string COL_SCRIPT_TYPE_CREATE_TABLE_PSA = "CREATE-TABLE-PSA";
         public const string COL_SCRIPT_TYPE_PRIMARY_KEY = "PRIMARY-KEY";
+
         public const string COL_SCRIPT_TYPE_MERGE_SRC_SELECT = "MERGE-SRC-SELECT";
+        public const string COL_SCRIPT_TYPE_MERGE_KEY_COL_JOIN = "MERGE-COL-KEY-JOIN";
+        public const string COL_SCRIPT_TYPE_MERGE_COL_UPDATE = "MERGE-COL-UPDATE";
+        public const string COL_SCRIPT_TYPE_MERGE_COL_INSERT = "MERGE-COL-INSERT";
 
         public const string COLUMN_SEPERATOR = ", ";
 
@@ -252,6 +256,7 @@ namespace SQLDwGenerator
 
                 string colName;
                 colName = col[COLUMN_NAME].ToString();
+                colName = UtilGeneral.GetQuotedString(colName);
 
                 if (col[PKCOLUMN].ToString() == "1")
                 {
@@ -273,7 +278,7 @@ namespace SQLDwGenerator
         }
 
 
-        private string GetColListForKeyJoin(string strSourceAlias, string strTargetAlias)
+        private string GetColListForMerge (string MergeScriptType, string SourceAlias, string TargetAlias)
         {
             string colstring = "";
 
@@ -282,12 +287,32 @@ namespace SQLDwGenerator
 
                 string colName;
                 colName = col[COLUMN_NAME].ToString();
+                colName = UtilGeneral.GetQuotedString(colName);
 
-                if (col[PKCOLUMN].ToString() == "1")
+                switch(MergeScriptType)
                 {
-                    colstring += Constants.TAB + strSourceAlias + "." + colName + " = " + strTargetAlias + "." + colName;
-                    colstring += COLUMN_SEPERATOR + Environment.NewLine;
+                    case COL_SCRIPT_TYPE_MERGE_KEY_COL_JOIN:
+                        if (col[PKCOLUMN].ToString() == "1")
+                        {
+                            colstring += Constants.TAB + SourceAlias + "." + colName + " = " + TargetAlias + "." + colName;
+                            colstring += COLUMN_SEPERATOR + Environment.NewLine;
+                        }
+                        break;
+                    case COL_SCRIPT_TYPE_MERGE_COL_UPDATE:
+                        if (col[PKCOLUMN].ToString() != "1")
+                        {
+                            colstring += Constants.TAB + Constants.TAB + TargetAlias + "." + colName + " = " + SourceAlias + "." + colName;
+                            colstring += COLUMN_SEPERATOR + Environment.NewLine;
+                        }
+                        break;
                 }
+            }
+
+            if (MergeScriptType == COL_SCRIPT_TYPE_MERGE_COL_UPDATE)
+            {
+                string strHasColumn = UtilGeneral.GetQuotedString(Constants.MERGE_HASH_COL);
+                colstring += Constants.TAB + Constants.TAB + Constants.MERGE_TARGET_ALIAS + "." + strHasColumn + " = " + Constants.MERGE_SOURCE_ALIAS + "." + strHasColumn;
+                colstring += COLUMN_SEPERATOR + Environment.NewLine;
             }
 
             colstring = colstring.TrimEnd();
@@ -305,9 +330,8 @@ namespace SQLDwGenerator
         /// <returns></returns>
         private string GetColListForINSERT()
         {
-            string colString;
+            string colString = "";
 
-            colString = "(";
             foreach (DataRow col in ColumnList.Rows)
             {
                 string colName;
@@ -346,8 +370,6 @@ namespace SQLDwGenerator
             // Remove comma at the end
             if (colString.EndsWith(COLUMN_SEPERATOR.Trim()))
                 colString = colString.Substring(0, colString.Length - 1);
-
-            colString += ")";
 
             return colString;
 
@@ -388,7 +410,7 @@ namespace SQLDwGenerator
         /// <param name="CRLFMode">Specify if CRLF is to be handled. Text Columns will have code to replace CRLF with [CRLF]</FR></param>
         /// <returns></returns>
 
-        private string GetColListForSELECT(int CRLFMode, int DBMode)
+        private string GetColListForSELECT(int CRLFMode, int DBMode, string SourceAlias)
         {
             string colString;
 
@@ -449,7 +471,10 @@ namespace SQLDwGenerator
                 }
                 else if (DBMode == DB_MODE_SQLDB)
                 {
-                    colString += colName + COLUMN_SEPERATOR;
+                    if (SourceAlias == "")
+                        colString += colName + COLUMN_SEPERATOR;
+                    else
+                        colString += SourceAlias + "." + colName + COLUMN_SEPERATOR;
                 }
             }
 
@@ -470,38 +495,58 @@ namespace SQLDwGenerator
         /// <returns></returns>
         public string GetColumnListSQL(string ScriptType)
         {
-            string colString = "";
+            string colstring = "";
 
             switch(ScriptType)
             {
                 case MyColumnList.COL_SCRIPT_TYPE_SELECT:
-                    colString = GetColListForSELECT(MyColumnList.MODE_CRLF_NONE, DB_MODE_SQLDW);
+                    colstring = GetColListForSELECT(MyColumnList.MODE_CRLF_NONE, DB_MODE_SQLDW, "");
                     break;
                 case MyColumnList.COL_SCRIPT_TYPE_SELECT_WITH_CRLF_REPLACE:
-                    colString = GetColListForSELECT(MyColumnList.MODE_CRLF_REPLACE, DB_MODE_SQLDW);
+                    colstring = GetColListForSELECT(MyColumnList.MODE_CRLF_REPLACE, DB_MODE_SQLDW, "");
                     break;
                 case MyColumnList.COL_SCRIPT_TYPE_SELECT_WITH_CRLF_REVERT:
-                    colString = GetColListForSELECT(MyColumnList.MODE_CRLF_REVERT, DB_MODE_SQLDW);
-                    break;
-                case MyColumnList.COL_SCRIPT_TYPE_INSERT:
-                    colString = GetColListForINSERT();
-                    break;
-                case MyColumnList.COL_SCRIPT_TYPE_FILE_HEADER:
-                    colString = GetColListForFILEHEADER("|~|");
+                    colstring = GetColListForSELECT(MyColumnList.MODE_CRLF_REVERT, DB_MODE_SQLDW, "");
                     break;
                 case MyColumnList.COL_SCRIPT_TYPE_MERGE_SRC_SELECT:
-                    colString = GetColListForSELECT(MyColumnList.MODE_CRLF_REVERT, DB_MODE_SQLDB);
+                    colstring = GetColListForSELECT(MyColumnList.MODE_CRLF_REVERT, DB_MODE_SQLDB, "");
+                    break;
+
+                case MyColumnList.COL_SCRIPT_TYPE_INSERT:
+                    colstring = GetColListForINSERT();
+                    break;
+                case MyColumnList.COL_SCRIPT_TYPE_FILE_HEADER:
+                    colstring = GetColListForFILEHEADER("|~|");
+                    break;
+                case MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_DWH:
+                    colstring = GetColListForCREATETABLE(Constants.TABLE_TYPE_DWH, "");
+                    break;
+                case MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_STG:
+                    colstring = GetColListForCREATETABLE(Constants.TABLE_TYPE_STG, "");
+                    break;
+                case MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_PSA:
+                    colstring = GetColListForCREATETABLE(Constants.TABLE_TYPE_PERSISTENT, "");
+                    break;
+                case MyColumnList.COL_SCRIPT_TYPE_PRIMARY_KEY:
+                    colstring = GetColListForPrimaryKey();
                     break;
             }
 
-            return colString;
+            return colstring;
         }
 
-        public string GetKeyColumnJoinList(string strSourceAlias, string strTargetAlias)
+        public string GetColumnListSQL(string ScriptType, string strSourceAlias, string strTargetAlias)
         {
 
             string colstring = "";
-            colstring = GetColListForKeyJoin(strSourceAlias, strTargetAlias);
+
+            switch(ScriptType)
+            {
+                case MyColumnList.COL_SCRIPT_TYPE_MERGE_COL_UPDATE:
+                case MyColumnList.COL_SCRIPT_TYPE_MERGE_KEY_COL_JOIN:
+                    colstring = GetColListForMerge(ScriptType, strSourceAlias, strTargetAlias);
+                    break;
+            }
 
             return colstring;
         }
@@ -512,23 +557,17 @@ namespace SQLDwGenerator
         /// <param name="ScriptType">Specify what type of Column list is needed</param>
         /// <param name="ReplaceCRLF">Specify if CRLF special characater is to be handled</param>
         /// <returns></returns>
-        public string GetColumnListSQL(string ScriptType, string ReplaceCRLF = "")
+        public string GetColumnListSQL(string ScriptType, string Parameter)
         {
             string colString = "";
 
             switch (ScriptType)
             {
                 case MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_EXT:
-                    colString = GetColListForCREATETABLE(Constants.TABLE_TYPE_EXTERNAL, ReplaceCRLF);
+                    colString = GetColListForCREATETABLE(Constants.TABLE_TYPE_EXTERNAL, Parameter);
                     break;
-                case MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_DWH:
-                    colString = GetColListForCREATETABLE(Constants.TABLE_TYPE_DWH, ReplaceCRLF);
-                    break;
-                case MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_STG:
-                    colString = GetColListForCREATETABLE(Constants.TABLE_TYPE_STG, ReplaceCRLF);
-                    break;
-                case MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_PSA:
-                    colString = GetColListForCREATETABLE(Constants.TABLE_TYPE_PERSISTENT, ReplaceCRLF);
+                case MyColumnList.COL_SCRIPT_TYPE_MERGE_COL_INSERT:
+                    colString = GetColListForSELECT(MyColumnList.MODE_CRLF_REVERT, DB_MODE_SQLDB, Parameter);
                     break;
             }
 
