@@ -301,20 +301,21 @@ namespace SQLDwGenerator
                     break;
                 case Constants.SCRIPT_TYPE_ALL:
                     //Genreate All Scripts
-                    ScriptWriter.GenerateTableCreateExternal(dtTable, false, false);
-                    ScriptWriter.GenerateTableCreateDWH(dtTable, false, false);
-                    ScriptWriter.GenerateBCPScript(dtTable, false, false);
-                    ScriptWriter.GenerateInsertFromExternalTable(dtTable, false);
-                    ScriptWriter.GenerateTableDrop(dtTable, Constants.TABLE_TYPE_EXTERNAL);
-                    ScriptWriter.GenerateTableDrop(dtTable, Constants.TABLE_TYPE_DWH);
-                    ScriptWriter.GenerateTableTruncate(dtTable);
-                    ScriptWriter.GeneratePSFileUTF8(false);
-                    ScriptWriter.GeneratePSFileZip(false);
-                    ScriptWriter.GenerateAZCopyFile(false);
-                    ScriptWriter.GenerateAzurePrepSQL(false);
+                    //ScriptWriter.GenerateTableCreateExternal(dtTable, false, false);
+                    //ScriptWriter.GenerateTableCreateDWH(dtTable, false, false);
+                    //ScriptWriter.GenerateBCPScript(dtTable, false, false);
+                    //ScriptWriter.GenerateInsertFromExternalTable(dtTable, false);
+                    //ScriptWriter.GenerateTableDrop(dtTable, Constants.TABLE_TYPE_EXTERNAL);
+                    //ScriptWriter.GenerateTableDrop(dtTable, Constants.TABLE_TYPE_DWH);
+                    //ScriptWriter.GenerateTableTruncate(dtTable);
+                    //ScriptWriter.GeneratePSFileUTF8(false);
+                    //ScriptWriter.GeneratePSFileZip(false);
+                    //ScriptWriter.GenerateAZCopyFile(false);
+                    //ScriptWriter.GenerateAzurePrepSQL(false);
                     ScriptWriter.GenerateTableCreateSTG(dtTable, false, false);
                     ScriptWriter.GenerateTableCreatePersistent(dtTable, false, false);
                     ScriptWriter.GenerateMergeSQL(dtTable, false);
+                    ScriptWriter.GenerateAlterTableForPSA(dtTable, false);
                     break;
             }
             sbpMessage.Text = "File(s) Generated";

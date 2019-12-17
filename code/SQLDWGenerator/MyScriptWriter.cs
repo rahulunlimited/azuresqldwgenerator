@@ -19,6 +19,7 @@ namespace SQLDwGenerator
     {
 
         private string OutputFolder;
+        private string OutputFolderSQLScripts;
         private MySettingsEnvironments SQLDwConfig;
         public const string TAB = "\t";
 
@@ -34,11 +35,15 @@ namespace SQLDwGenerator
             string strConfigName;
             strConfigName = SQLDwConfig.ConfigFileName.Replace(".Config", "");
             OutputFolder = Properties.Settings.Default.ApplicationFolder + "\\" + Constants.SUB_FOLDER_SCRIPTS + "\\" + strConfigName;
+            OutputFolderSQLScripts = OutputFolder + "\\SQLScripts";
 
             if (!Directory.Exists(OutputFolder))
                 Directory.CreateDirectory(OutputFolder);
+
+            if (!Directory.Exists(OutputFolderSQLScripts))
+                Directory.CreateDirectory(OutputFolderSQLScripts);
         }
-        
+
         /// <summary>
         /// Generate scripts for SQL DW External Table
         /// </summary>
@@ -253,7 +258,7 @@ namespace SQLDwGenerator
             // Specify the file name for the Script
             string strFileURL, strFileSuffix;
             strFileSuffix = ".STGTable.CREATE.sql";
-            strFileURL = OutputFolder + "\\" + SQLDwConfig.ConfigFileName.Replace(".Config", strFileSuffix);
+            strFileURL = OutputFolderSQLScripts + "\\" + SQLDwConfig.ConfigFileName.Replace(".Config", strFileSuffix);
             try
             {
                 strSchemaNameSTG = Constants.SCHEMA_STAGE;
@@ -267,7 +272,7 @@ namespace SQLDwGenerator
 
                     strSchemaName = row[MyTableList.SCHEMA_NAME].ToString();
                     strTableName = row[MyTableList.TABLE_NAME].ToString();
-                    strTableNameSTG = strSchemaName + "_" + strTableName;
+                    strTableNameSTG = Constants.SQL_SCRIPT_SOURCE + "_" + strTableName;
 
                     strTableExists = GetTableExistsSQL(strSchemaNameSTG, strTableNameSTG);
 
@@ -334,7 +339,7 @@ namespace SQLDwGenerator
             // Specify the file name for the Script
             string strFileURL, strFileSuffix;
             strFileSuffix = ".PersistentTable.CREATE.sql";
-            strFileURL = OutputFolder + "\\" + SQLDwConfig.ConfigFileName.Replace(".Config", strFileSuffix);
+            strFileURL = OutputFolderSQLScripts + "\\" + SQLDwConfig.ConfigFileName.Replace(".Config", strFileSuffix);
             try
             {
                 strSchemaNamePSA = Constants.SCHEMA_PERSISTENT;
@@ -349,7 +354,7 @@ namespace SQLDwGenerator
 
                     strSchemaName = row[MyTableList.SCHEMA_NAME].ToString();
                     strTableName = row[MyTableList.TABLE_NAME].ToString();
-                    strTableNamePSA = strSchemaName + "_" + strTableName;
+                    strTableNamePSA = Constants.SQL_SCRIPT_SOURCE + "_" + strTableName;
 
                     strTableExists = GetTableExistsSQL(strSchemaNamePSA, strTableNamePSA);
 
@@ -373,7 +378,7 @@ namespace SQLDwGenerator
                     MyColumnList ColumnList = new MyColumnList(strSchemaName, strTableName, SQLDwConfig);
                     string colstring = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_CREATE_TABLE_PSA);
                     ALScript.Add(colstring);
-                    ALScript.Add(Constants.TAB + "[" + Constants.MERGE_HASH_COL + "]" + " nvarchar(100) NOT NULL,");
+                    ALScript.Add(Constants.TAB + "[" + Constants.MERGE_HASH_COL + "]" + " binary(64) NOT NULL,");
                     ALScript.Add(Constants.TAB + "[ValidFrom] datetime2(2) GENERATED ALWAYS AS ROW START NOT NULL,");
                     ALScript.Add(Constants.TAB + "[ValidTo] datetime2(2) GENERATED ALWAYS AS ROW END NOT NULL,");
 
@@ -1002,7 +1007,7 @@ namespace SQLDwGenerator
 
             string strFileURL;
             // Specify the file name for the Script
-            strFileURL = OutputFolder + "\\" + SQLDwConfig.ConfigFileName.Replace(".Config", ".MERGE.sql");
+            strFileURL = OutputFolderSQLScripts + "\\" + SQLDwConfig.ConfigFileName.Replace(".Config", ".MERGE.sql");
 
             string strHasColumn = UtilGeneral.GetQuotedString(Constants.MERGE_HASH_COL);
 
@@ -1019,7 +1024,7 @@ namespace SQLDwGenerator
                     strTableName = row[MyTableList.TABLE_NAME].ToString();
                     MyColumnList ColumnList = new MyColumnList(strSchemaName, strTableName, SQLDwConfig);
 
-                    strTableName = row[MyTableList.SCHEMA_NAME].ToString() + "_" + row[MyTableList.TABLE_NAME].ToString();
+                    strTableName = Constants.SQL_SCRIPT_SOURCE + "_" + row[MyTableList.TABLE_NAME].ToString();
 
                     string strMergeSQL;
                     strMergeSQL = "CREATE OR ALTER PROCEDURE ";
@@ -1034,7 +1039,7 @@ namespace SQLDwGenerator
 
                     ALScript.Add(Constants.TAB + "SELECT ");
                     ALScript.Add(Constants.TAB + Constants.TAB + strColList);
-                    ALScript.Add(Constants.TAB + Constants.TAB + ",HASHBYTES('SHA2_512', CONCAT(" + strColList + ")) AS " + Constants.MERGE_HASH_COL);
+                    ALScript.Add(Constants.TAB + Constants.TAB + ",HASHBYTES('" + Constants.HASH_ALGORITHM + "', CONCAT(" + strColList + ")) AS " + Constants.MERGE_HASH_COL);
                     ALScript.Add(Constants.TAB + "FROM " + Constants.SCHEMA_STAGE + "." + strTableName);
                     ALScript.Add(") AS " + Constants.MERGE_SOURCE_ALIAS);
 
@@ -1052,18 +1057,22 @@ namespace SQLDwGenerator
                     ALScript.Add(strUpdateSet);
 
                     ALScript.Add("WHEN NOT MATCHED THEN");
-                    ALScript.Add("INSERT (");
+                    ALScript.Add(Constants.TAB + "INSERT (");
                     string colstringINSERTTable;
                     colstringINSERTTable = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_INSERT);
                     colstringINSERTTable += ", " + strHasColumn;
-                    ALScript.Add(Constants.TAB + colstringINSERTTable);
-                    ALScript.Add(")");
+                    ALScript.Add(Constants.TAB + Constants.TAB + colstringINSERTTable);
+                    ALScript.Add(Constants.TAB + ")");
                     string strInsertCol;
-                    ALScript.Add("VALUES (");
+                    ALScript.Add(Constants.TAB + "VALUES (");
                     strInsertCol = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_MERGE_COL_INSERT, Constants.MERGE_SOURCE_ALIAS);
                     strInsertCol += ", " + Constants.MERGE_SOURCE_ALIAS + "." + strHasColumn;
-                    ALScript.Add(Constants.TAB + strInsertCol);
-                    ALScript.Add(");");
+                    ALScript.Add(Constants.TAB + Constants.TAB + strInsertCol);
+                    ALScript.Add(Constants.TAB + ")");
+                    ALScript.Add("WHEN NOT MATCHED BY SOURCE");
+                    ALScript.Add(Constants.TAB + "THEN DELETE");
+                    ALScript.Add(";");
+                    ALScript.Add("GO");
 
 
 
@@ -1087,6 +1096,58 @@ namespace SQLDwGenerator
             }
         }
 
+        public string GenerateAlterTableForPSA(MyTableList TableList, bool ReturnScriptFlag)
+        {
+            string strSQL;
+            ArrayList ALScript = new ArrayList();
+
+            string strFileURL;
+            // Specify the file name for the Script
+            strFileURL = OutputFolderSQLScripts + "\\" + SQLDwConfig.ConfigFileName.Replace(".Config", ".ALTERPSA.sql");
+
+            string strHasColumn = UtilGeneral.GetQuotedString(Constants.MERGE_HASH_COL);
+
+            try
+            {
+                DataTable dtTable = TableList.GetTableList();
+
+                foreach (DataRow row in dtTable.Rows)
+                {
+                    if ((string)row[MyTableList.SELECT].ToString() == Boolean.FalseString || (string)row[MyTableList.SELECT].ToString() == "") continue;
+
+                    string strSchemaName, strTableName;
+                    strSchemaName = row[MyTableList.SCHEMA_NAME].ToString();
+                    strTableName = row[MyTableList.TABLE_NAME].ToString();
+                    MyColumnList ColumnList = new MyColumnList(strSchemaName, strTableName, SQLDwConfig);
+
+                    strTableName = Constants.SCHEMA_PERSISTENT + "." + Constants.SQL_SCRIPT_SOURCE + "_" + row[MyTableList.TABLE_NAME].ToString();
+
+                    string strColList;
+                    strColList = ColumnList.GetColumnListSQL(MyColumnList.COL_SCRIPT_TYPE_MERGE_SRC_SELECT);
+
+                    ALScript.Add("ALTER TABLE " + strTableName + " DROP COLUMN " + Constants.MERGE_HASH_COL);
+                    ALScript.Add("ALTER TABLE " + strTableName + " ADD " + Constants.MERGE_HASH_COL + " BINARY(64)");
+                    ALScript.Add("UPDATE " + strTableName + " SET " + Constants.MERGE_HASH_COL + " = " + " HASHBYTES('" + Constants.HASH_ALGORITHM + "', CONCAT(" + strColList + "))");
+                    ALScript.Add("GO");
+
+
+                    ALScript.Add("");
+                }
+                GenerateFile(strFileURL, ALScript);
+
+                string strReturn = "";
+                if (ReturnScriptFlag)
+                    strReturn = string.Join(Environment.NewLine, ALScript.ToArray());
+
+                return strReturn;
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
 
 

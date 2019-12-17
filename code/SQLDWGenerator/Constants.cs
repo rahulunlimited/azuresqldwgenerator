@@ -101,6 +101,9 @@ namespace SQLDwGenerator
         public const string MERGE_TARGET_ALIAS = "TGT";
         public const string MERGE_HASH_COL = "DWHashKey";
 
+        public const string HASH_ALGORITHM = "SHA2_512";
+        public const string SQL_SCRIPT_SOURCE = "OpenAirExtract";
+
 
 
     }
