@@ -17,6 +17,11 @@ namespace SQLDwGenerator
         const string USER_SETTINGS_FILENAME = "UserConfig.config";
         public const string KEY_CONFIG_NAME = "ConfigurationFile";
         public const string KEY_BCP_ROW_COUNT_OVERRIDE = "BCPRowCountOverRide";
+        public const string KEY_SCHEMA_NAME_STG = "StageSchemaName";
+        public const string KEY_SCHEMA_NAME_PERSISTENT = "PersistentSchemaName";
+        public const string KEY_HASH_ALGORITHM = "HashAlgorithm";
+        public const string KEY_SQL_SOURCE_SYSTEM_NAME = "SQLSourceSystemName";
+        public const string KEY_HASH_COL_NAME = "CombinedHashColName";
 
         private Configuration ConfigFile;
 

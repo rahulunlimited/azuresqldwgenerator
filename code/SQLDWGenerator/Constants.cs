@@ -61,6 +61,7 @@ namespace SQLDwGenerator
         public const string SCRIPT_TYPE_BCP_EMPTY_FILE = "BCP Script for Empty Files";
         public const string SCRIPT_TYPE_FILE_HEADER = "File Header";
         public const string SCRIPT_TYPE_SELECT_SQL = "SELECT SQL";
+        public const string SCRIPT_TYPE_SQL_ETL = "SQL ETL";
 
         public const string TABLE_TYPE_EXTERNAL = "EXTERNAL";
         public const string TABLE_TYPE_DWH = "DWH";
@@ -94,17 +95,8 @@ namespace SQLDwGenerator
         public const string MIGRATE_STEP_DATA_WAREHOUSE_TABLE = "Create Data Warehouse Table";
         public const string MIGRATE_STEP_INSERT = "Insert data from BLOB";
 
-        public const string SCHEMA_STAGE = "stg";
-        public const string SCHEMA_PERSISTENT = "psa";
-
         public const string MERGE_SOURCE_ALIAS = "SRC";
         public const string MERGE_TARGET_ALIAS = "TGT";
-        public const string MERGE_HASH_COL = "DWHashKey";
-
-        public const string HASH_ALGORITHM = "SHA2_512";
-        public const string SQL_SCRIPT_SOURCE = "OpenAirExtract";
-
-
 
     }
 }

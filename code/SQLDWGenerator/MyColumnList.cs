@@ -310,7 +310,7 @@ namespace SQLDwGenerator
 
             if (MergeScriptType == COL_SCRIPT_TYPE_MERGE_COL_UPDATE)
             {
-                string strHasColumn = UtilGeneral.GetQuotedString(Constants.MERGE_HASH_COL);
+                string strHasColumn = UtilGeneral.GetQuotedString(UtilGeneral.GetConfigValue(MySettingsUserConfig.KEY_HASH_COL_NAME));
                 colstring += Constants.TAB + Constants.TAB + Constants.MERGE_TARGET_ALIAS + "." + strHasColumn + " = " + Constants.MERGE_SOURCE_ALIAS + "." + strHasColumn;
                 colstring += COLUMN_SEPERATOR + Environment.NewLine;
             }

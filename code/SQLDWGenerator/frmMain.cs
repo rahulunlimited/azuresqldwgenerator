@@ -118,6 +118,7 @@ namespace SQLDwGenerator
             cmbDataType.Items.Add(Constants.SCRIPT_TYPE_EXTERNAL_TABLE_CREATE_DROP);
             cmbDataType.Items.Add(Constants.SCRIPT_TYPE_SELECT_SQL);
             cmbDataType.Items.Add(Constants.SCRIPT_TYPE_FILE_HEADER);
+            cmbDataType.Items.Add(Constants.SCRIPT_TYPE_SQL_ETL);
             cmbDataType.SelectedIndex = 0;
 
             this.sbpConfig.Text = CurrentConfigFileName;
@@ -299,23 +300,25 @@ namespace SQLDwGenerator
                 case Constants.SCRIPT_TYPE_BCP_EMPTY_FILE:
                     ScriptWriter.GenerateBCPScript(dtTable, true, false);
                     break;
-                case Constants.SCRIPT_TYPE_ALL:
-                    //Genreate All Scripts
-                    //ScriptWriter.GenerateTableCreateExternal(dtTable, false, false);
-                    //ScriptWriter.GenerateTableCreateDWH(dtTable, false, false);
-                    //ScriptWriter.GenerateBCPScript(dtTable, false, false);
-                    //ScriptWriter.GenerateInsertFromExternalTable(dtTable, false);
-                    //ScriptWriter.GenerateTableDrop(dtTable, Constants.TABLE_TYPE_EXTERNAL);
-                    //ScriptWriter.GenerateTableDrop(dtTable, Constants.TABLE_TYPE_DWH);
-                    //ScriptWriter.GenerateTableTruncate(dtTable);
-                    //ScriptWriter.GeneratePSFileUTF8(false);
-                    //ScriptWriter.GeneratePSFileZip(false);
-                    //ScriptWriter.GenerateAZCopyFile(false);
-                    //ScriptWriter.GenerateAzurePrepSQL(false);
+                case Constants.SCRIPT_TYPE_SQL_ETL:
                     ScriptWriter.GenerateTableCreateSTG(dtTable, false, false);
                     ScriptWriter.GenerateTableCreatePersistent(dtTable, false, false);
                     ScriptWriter.GenerateMergeSQL(dtTable, false);
                     ScriptWriter.GenerateAlterTableForPSA(dtTable, false);
+                    break;
+                case Constants.SCRIPT_TYPE_ALL:
+                    //Genreate All Scripts
+                    ScriptWriter.GenerateTableCreateExternal(dtTable, false, false);
+                    ScriptWriter.GenerateTableCreateDWH(dtTable, false, false);
+                    ScriptWriter.GenerateBCPScript(dtTable, false, false);
+                    ScriptWriter.GenerateInsertFromExternalTable(dtTable, false);
+                    ScriptWriter.GenerateTableDrop(dtTable, Constants.TABLE_TYPE_EXTERNAL);
+                    ScriptWriter.GenerateTableDrop(dtTable, Constants.TABLE_TYPE_DWH);
+                    ScriptWriter.GenerateTableTruncate(dtTable);
+                    ScriptWriter.GeneratePSFileUTF8(false);
+                    ScriptWriter.GeneratePSFileZip(false);
+                    ScriptWriter.GenerateAZCopyFile(false);
+                    ScriptWriter.GenerateAzurePrepSQL(false);
                     break;
             }
             sbpMessage.Text = "File(s) Generated";
