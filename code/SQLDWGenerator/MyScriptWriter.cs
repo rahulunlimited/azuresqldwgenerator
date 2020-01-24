@@ -1509,6 +1509,8 @@ namespace SQLDwGenerator
             try
             {
                 string strSASKey = System.Net.WebUtility.HtmlDecode(SQLDwConfig.AzSASToken);
+                // There seems to be an issue with the handling of % sign in the SAS Token
+                // Current fix is to replace it with %%
                 strSASKey = strSASKey.Replace("%", "%%");
                 string strSASURL = "https://" + SQLDwConfig.AzStorageAccount + ".blob.core.windows.net/" + SQLDwConfig.AzContainer + strSASKey;
 

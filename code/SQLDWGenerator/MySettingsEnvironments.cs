@@ -176,7 +176,8 @@ namespace SQLDwGenerator
                 BCPOutputFormat = doc.GetElementsByTagName("BCPOutputFormat")[0].InnerXml;
                 AzStorageAccount = doc.GetElementsByTagName("AzureStorageAccount")[0].InnerXml;
                 AzContainer = doc.GetElementsByTagName("AzureContainer")[0].InnerXml;
-                AzSASToken = doc.GetElementsByTagName("AzureSASToken")[0].InnerXml;
+                // XML Saves the & as &amp; thus reverting it back when retrieving from XML
+                AzSASToken = doc.GetElementsByTagName("AzureSASToken")[0].InnerXml.Replace("&amp;", "&");
                 AzStorageKey = doc.GetElementsByTagName("AzureStorageKey")[0].InnerXml;
 
 
